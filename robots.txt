@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /notes/
+Disallow: /tools/
+Disallow: /legal/src/
 
 Sitemap: https://checkshot.ca/sitemap.xml
