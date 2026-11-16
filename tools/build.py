@@ -114,12 +114,14 @@ def page(path, title, desc, body, current='', extra_head='', scripts='', robots=
     return url
 
 
-def shot(r, name, alt, cap, w=2560, h=1600):
+def shot(r, name, alt, cap, w=2560, h=1600, link=True):
+    o = f'<a href="{r}assets/shots/{name}-dark.webp" aria-label="Open the screenshot full size">' if link else '<div class="frame">'
+    c = '</a>' if link else '</div>'
     return f'''<figure class="shot">
-  <a href="{r}assets/shots/{name}-dark.webp" aria-label="Open the screenshot full size">
+  {o}
     <img class="dark" src="{r}assets/shots/{name}-dark.webp" width="{w}" height="{h}" loading="lazy" decoding="async" alt="{alt}">
     <img class="light" src="{r}assets/shots/{name}-light.webp" width="{w}" height="{h}" loading="lazy" decoding="async" alt="{alt}">
-  </a>
+  {c}
   <figcaption>{cap}</figcaption>
 </figure>'''
 
@@ -127,9 +129,9 @@ def shot(r, name, alt, cap, w=2560, h=1600):
 # ------------------------------------------------------------------ home
 HOME = f'''<section class="hero" aria-labelledby="h-hero">
   <div class="wrap hero-head">
-    <h1 id="h-hero">Grade your drone survey against your own stick shots.</h1>
+    <h1 id="h-hero">Tag your ground control once. Send it to WebODM or ReCap.</h1>
     <div class="hero-side">
-      <p>Checkshot is a Windows app for checking drone surveys on land development jobs. Tag the ground control in your photos, convert the point cloud to your coordinate system, then check it against shots you took with the rod. It runs offline and it shows its numbers.</p>
+      <p>Checkshot is a Windows app for drone surveys on land development jobs. Click a target in one photo and the Tagger finds it in the others, then writes the control file for OpenDroneMap, WebODM or Autodesk ReCap. When the point cloud comes back, convert it to your coordinate system and check it against shots you took with the rod. It runs offline and it shows its numbers.</p>
       <div>
         <div class="hero-cta">
           <a class="btn" href="download/">Download the beta</a>
@@ -190,7 +192,7 @@ HOME = f'''<section class="hero" aria-labelledby="h-hero">
       <article class="step">
           <h3><span class="n">1</span> Tag the control</h3>
           <p>Load the GCP shots from your data collector and the photos from the flight. Click the centre of a target in one photo. The Tagger looks for that target in the other photos and puts what it finds at the front of the list for you to accept or reject.</p>
-        {shot('', 'tagger', 'The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.', 'GCP Tagger with made-up control loaded, before the photos are added.')}
+        {shot('', 'tagger', 'The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.', 'GCP Tagger with made-up control loaded, before the photos are added.', link=False)}
           <ul>
             <li>Writes <code>gcp_list.txt</code> for OpenDroneMap and WebODM, or a survey XML for Autodesk ReCap.</li>
             <li>Notices when your firm's grid is shifted from the true projection, tells you by how much, and remembers it.</li>
@@ -298,7 +300,7 @@ HOME = f'''<section class="hero" aria-labelledby="h-hero">
 
 JSONLD = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Checkshot",'
           '"applicationCategory":"EngineeringApplication","operatingSystem":"Windows 10, Windows 11, Linux","url":"https://checkshot.ca/",'
-          '"description":"Desktop app for checking drone surveys: GCP Tagger, point cloud Converter and stick-shot Checker. Runs offline."}</script>\n')
+          '"description":"Desktop app for drone surveys: GCP Tagger for OpenDroneMap, WebODM and ReCap, point cloud Converter and stick-shot Checker. Runs offline."}</script>\n')
 
 # ------------------------------------------------------------------ download
 DOWNLOAD = f'''<div class="page-head"><div class="wrap">
@@ -433,7 +435,7 @@ def legal(name, desc):
 
 urls = [
     page('index.html', 'Checkshot: check a drone survey against your stick shots',
-         'Windows app for checking drone surveys. Tag ground control, convert point clouds between 5,860 coordinate systems, and grade the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.',
+         'Windows app for drone surveys. Tag ground control in your photos for OpenDroneMap, WebODM or ReCap, convert point clouds between 5,860 coordinate systems, and check the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.',
          HOME, extra_head=JSONLD, scripts='<script src="assets/js/hero.js"></script>\n'),
     page('download/index.html', 'Download the Checkshot beta for Windows',
          'Get the Checkshot beta installer for Windows 10 and 11. No admin rights needed. Free until March 31, 2027. Linux builds on the same release page.',
