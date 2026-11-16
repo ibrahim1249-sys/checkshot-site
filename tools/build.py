@@ -449,6 +449,7 @@ page('404.html', 'Page not found | Checkshot', 'There is no page at this address
 
 (ROOT / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + ''.join(f'  <url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')
+(ROOT / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
 (ROOT / 'CNAME').write_text('checkshot.ca\n')
 (ROOT / '.nojekyll').write_text('')
 (ROOT / 'site.webmanifest').write_text('{"name":"Checkshot","short_name":"Checkshot","start_url":"./","display":"browser","background_color":"#0E0E0F","theme_color":"#0E0E0F",'
