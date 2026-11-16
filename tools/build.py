@@ -188,22 +188,20 @@ HOME = f'''<section class="hero" aria-labelledby="h-hero">
     </div>
     <div>
       <article class="step">
-        <div>
           <h3><span class="n">1</span> Tag the control</h3>
           <p>Load the GCP shots from your data collector and the photos from the flight. Click the centre of a target in one photo. The Tagger looks for that target in the other photos and puts what it finds at the front of the list for you to accept or reject.</p>
+        {shot('', 'tagger', 'The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.', 'GCP Tagger with made-up control loaded, before the photos are added.')}
           <ul>
             <li>Writes <code>gcp_list.txt</code> for OpenDroneMap and WebODM, or a survey XML for Autodesk ReCap.</li>
             <li>Notices when your firm's grid is shifted from the true projection, tells you by how much, and remembers it.</li>
             <li>A point with no elevation in the file is left out of the export and named. Nothing is written with Z = 0.</li>
             <li>Tick any shot as a check point and it is kept out of the control.</li>
           </ul>
-        </div>
-        {shot('', 'tagger', 'The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.', 'GCP Tagger with made-up control loaded, before the photos are added.')}
       </article>
       <article class="step">
-        <div>
           <h3><span class="n">2</span> Convert the cloud</h3>
           <p>Take a LAS, LAZ or text point cloud from the system your processing software wrote it in to the one your drawings are in. The Converter guesses the source system from the numbers, says that it is a guess, and tells you in words where the cloud lands before anything runs.</p>
+        {shot('', 'converter', 'The Converter after converting a made-up UTM point cloud to Alberta 3TM: a message stating the transform used and its largest difference from the exact maths, point counts, a download button and a plot of the cloud.', 'Converter result on a made-up cloud. The green line says which transform was used and how far it is from the exact maths.')}
           <ul>
             <li>5,860 EPSG projected systems, including Alberta 3TM and UTM.</li>
             <li>NAD27 through Natural Resources Canada's NTv2 grid, inside Canada. Outside the grid it stops with a message.</li>
@@ -211,13 +209,11 @@ HOME = f'''<section class="hero" aria-labelledby="h-hero">
             <li>Out: a point file thinned on a grid for Civil 3D, or a LAS with the new coordinates.</li>
             <li>Says plainly when a step changes geometry, and by how much.</li>
           </ul>
-        </div>
-        {shot('', 'converter', 'The Converter after converting a made-up UTM point cloud to Alberta 3TM: a message stating the transform used and its largest difference from the exact maths, point counts, a download button and a plot of the cloud.', 'Converter result on a made-up cloud. The green line says which transform was used and how far it is from the exact maths.')}
       </article>
       <article class="step">
-        <div>
           <h3><span class="n">3</span> Check it</h3>
           <p>Load the cloud and your stick shots and set a tolerance. The Checker fits a plane to the cloud points around each shot, so slopes do not bias the height, and gives you the difference at every one.</p>
+        {shot('', 'checker', 'The Checker after grading a made-up cloud against 24 made-up shots: a Pass line with the RMSE, tiles for mean, RMSE, standard deviation, 95 percent and worst shot, doming and tilt tests, and a map of the shots.', 'Checker result on made-up data: verdict, statistics, bend tests and a map of the shots.')}
           <ul>
             <li>Mean, RMSE, standard deviation, the 95% figure (1.96 &times; RMSE), worst shot and share inside tolerance.</li>
             <li>Tests for doming and tilt. With enough shots on slopes, a horizontal shift too.</li>
@@ -228,14 +224,12 @@ HOME = f'''<section class="hero" aria-labelledby="h-hero">
             <p>Independent shots only. Never the shots you tagged as GCPs: the model was fitted to those, so they always look good and prove nothing.</p>
             <footer>From the Checker's own screen</footer>
           </blockquote>
-        </div>
-        {shot('', 'checker', 'The Checker after grading a made-up cloud against 24 made-up shots: a Pass line with the RMSE, tiles for mean, RMSE, standard deviation, 95 percent and worst shot, doming and tilt tests, and a map of the shots.', 'Checker result on made-up data: verdict, statistics, bend tests and a map of the shots.')}
       </article>
     </div>
   </div>
 </section>
 
-<section class="band" id="rules" aria-labelledby="h-rules">
+<section class="band tinted" id="rules" aria-labelledby="h-rules">
   <div class="wrap">
     <div class="band-title">
       <h2 id="h-rules">Ground rules</h2>
@@ -438,7 +432,7 @@ def legal(name, desc):
 
 urls = [
     page('index.html', 'Checkshot: check a drone survey against your stick shots',
-         'Windows app for drone-survey checking in land development. Tag ground control, convert point clouds between 5,860 coordinate systems, and grade the cloud against stick shots. Runs offline. Free beta until March 31, 2027.',
+         'Windows app for checking drone surveys. Tag ground control, convert point clouds between 5,860 coordinate systems, and grade the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.',
          HOME, extra_head=JSONLD, scripts='<script src="assets/js/hero.js"></script>\n'),
     page('download/index.html', 'Download the Checkshot beta for Windows',
          'Get the Checkshot beta installer for Windows 10 and 11. No admin rights needed. Free until March 31, 2027. Linux builds on the same release page.',
@@ -450,11 +444,11 @@ urls = [
     legal('privacy', 'What Checkshot collects: nothing from the app, no cookies or analytics on this site, and only what you send when you email or buy a licence.'),
     legal('terms', 'Terms of sale for Checkshot licences: prices and taxes, licence keys, refunds and delivery.'),
 ]
-page('404.html', 'Page not found | Checkshot', 'There is no page at this address on checkshot.ca.', NOTFOUND, robots='<meta name="robots" content="noindex">\n')
+page('404.html', 'Page not found | Checkshot', 'There is no page at this address on checkshot.ca. Go to the home page or the download page instead.', NOTFOUND, robots='<meta name="robots" content="noindex">\n')
 
 (ROOT / 'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     + ''.join(f'  <url><loc>{u}</loc></url>\n' for u in urls) + '</urlset>\n')
-(ROOT / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n')
+(ROOT / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nDisallow: /notes/\nDisallow: /tools/\nDisallow: /legal/src/\n\nSitemap: {SITE}/sitemap.xml\n')
 (ROOT / 'CNAME').write_text('checkshot.ca\n')
 (ROOT / '.nojekyll').write_text('')
 (ROOT / 'site.webmanifest').write_text('{"name":"Checkshot","short_name":"Checkshot","start_url":"./","display":"browser","background_color":"#0E0E0F","theme_color":"#0E0E0F",'

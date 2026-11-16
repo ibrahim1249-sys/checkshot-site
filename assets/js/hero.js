@@ -168,7 +168,7 @@
     b.setAttribute('aria-pressed', 'false');
     b.setAttribute('aria-label', 'Check shot ' + s.id + ', ' + s.desc + ': cloud minus shot ' + sgn(s.dz).replace('−', 'minus ').replace('+', 'plus ') + ' metres' + (s.use ? '' : ', steep slope, left out'));
     b.innerHTML = '<i aria-hidden="true"></i><span>' + sgn(s.dz) + ' m</span>';
-    b.addEventListener('click', function () { select(selected === s ? null : s); });
+    b.addEventListener('click', function () { select(s); });
     b.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') select(s); });
     b.addEventListener('focus', function () { select(s); });
     labelsEl.appendChild(b);
@@ -200,7 +200,7 @@
   } catch (e) { root.classList.add('is-static'); return; }
 
   var small = Math.min(window.innerWidth, window.innerHeight) < 700 || (navigator.hardwareConcurrency || 8) <= 4;
-  var N = small ? 70000 : 150000, drawN = N, spacing = Math.sqrt(4 * HX * HY / N);
+  var N = small ? 70000 : 130000, drawN = N, spacing = Math.sqrt(4 * HX * HY / N);
   var rs = 20260115; function rnd() { rs = (rs * 16807) % 2147483647; return rs / 2147483647; }
   var ptBuf = gl.createBuffer(), STRIDE = 28;
   (function build() {
@@ -249,7 +249,7 @@
   }
   function camera() {
     var asp = W / H, f = 1 / Math.tan(FOV / 2), fx = f / asp, wide = W > 860;
-    var dist = Math.max(112 * f, (wide ? 238 : 142) * fx) * 1.06;
+    var dist = Math.max(112 * f, (wide ? 238 : 162) * fx) * 1.06;
     var ce = Math.cos(el), ex = Math.sin(az) * ce * dist, ey = -Math.cos(az) * ce * dist, ez = Math.sin(el) * dist;
     var tz = 100;
     // view basis: forward = target - eye, world up = +z
@@ -341,7 +341,7 @@
   }
 
   /* ---------- draw ---------- */
-  var T = 0, playing = false, dirty = true, visible = true, quality = 1, raf = 0, lastNow = 0;
+  var T = 0, started = false, playing = false, dirty = true, visible = true, quality = 1, raf = 0, lastNow = 0;
   var aP = { pos: gl.getAttribLocation(pPts, 'aPos'), start: gl.getAttribLocation(pPts, 'aStart'), col: gl.getAttribLocation(pPts, 'aCol'), rev: gl.getAttribLocation(pPts, 'aRev') };
   var uP = { mvp: gl.getUniformLocation(pPts, 'uMVP'), t: gl.getUniformLocation(pPts, 'uT'), px: gl.getUniformLocation(pPts, 'uPx'), noise: gl.getUniformLocation(pPts, 'uNoise'), gold: gl.getUniformLocation(pPts, 'uGold') };
   var aF = { pos: gl.getAttribLocation(pFlat, 'aPos'), col: gl.getAttribLocation(pFlat, 'aCol') }, uF = { mvp: gl.getUniformLocation(pFlat, 'uMVP') };
@@ -401,18 +401,18 @@
   var frames = 0, slow = 0, tuned = false;
   function frame(now) {
     raf = 0;
-    var dt = Math.min(0.05, (now - lastNow) / 1000 || 0.016); lastNow = now;
+    var dt = Math.min(0.1, (now - lastNow) / 1000 || 0.016); lastNow = now;
     if (playing) {
       T += dt; if (!userMoved) az += dt * 0.022;
       if (T >= TMAX) { T = TMAX; setPlaying(false); }
       scrub.value = String(T);
-      if (!tuned) { frames++; if (dt > 0.03) slow++; if (frames === 90) { tuned = true; if (slow > 40) { if (quality === 1 && (window.devicePixelRatio || 1) > 1) quality = 0.66; drawN = Math.round(N * 0.55); resize(); } } }
+      if (!tuned) { frames++; if (dt > 0.03) slow++; if (frames === 45) { tuned = true; if (slow > 20) { if (quality === 1 && (window.devicePixelRatio || 1) > 1) quality = 0.66; drawN = Math.round(N * 0.55); resize(); } } }
     }
     if (window.__svFrames != null) window.__svFrames++;
     draw(); status(); dirty = false;
     schedule();
   }
-  function schedule() { if (!raf && visible && !document.hidden && (playing || dirty || dragging)) raf = requestAnimationFrame(frame); }
+  function schedule() { if (started && !raf && visible && !document.hidden && (playing || dirty || dragging)) raf = requestAnimationFrame(frame); }
   function setPlaying(p) {
     playing = p; playBtn.setAttribute('aria-pressed', String(p));
     playBtn.querySelector('span').textContent = p ? 'Pause' : (T >= TMAX ? 'Replay' : 'Play');
@@ -446,7 +446,7 @@
   canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); root.classList.remove('is-live'); root.classList.add('is-static'); playing = false; });
 
   function start(play) {
-    readTheme(); resize();
+    started = true; readTheme(); resize();
     root.classList.add('is-live'); root.classList.remove('is-waiting');
     if (play) { T = 0; setPlaying(true); } else { T = TMAX; scrub.value = String(T); setPlaying(false); dirty = true; schedule(); }
   }

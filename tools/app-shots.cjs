@@ -78,7 +78,7 @@ const gauss = () => { let a = 0; for (let i = 0; i < 6; i++) a += rnd(); return 
   console.log('src guess:', await p.inputValue('#cv-src'), (await p.textContent('#cv-srcWhy')).trim());
   await p.selectOption('#cv-dst', '3780'); await p.click('#cv-run'); await p.waitForSelector('#cv-dlrow:not([hidden])');
   console.log('msg:', (await p.textContent('#cv-msg')).trim().slice(0, 240));
-  await snap('converter'); await snap('converter-full', { fullPage: true });
+  await p.evaluate(() => window.scrollTo(0, 0)); await snap('converter'); await snap('converter-full', { fullPage: true });
   await p.selectOption('#cv-dst', '__more'); await p.fill('.kit-crs-q', 'alberta'); await p.waitForFunction(() => document.querySelectorAll('.kit-crs-list li').length > 0);
   await snap('crs-search');
   if (errs.length) console.warn('page errors:', errs);
