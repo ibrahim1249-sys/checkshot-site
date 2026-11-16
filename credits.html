@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en-CA" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credits and licences | Checkshot</title>
+<meta name="description" content="The open-source software, reference data and services Checkshot is built on, with their licences: exifr, laz-perf, Proj4js, epsg-index, the EPSG dataset, the NRCan NTv2 grid, Tauri and Esri imagery.">
+<link rel="canonical" href="https://checkshot.ca/credits.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Checkshot">
+<meta property="og:title" content="Credits and licences | Checkshot">
+<meta property="og:description" content="The open-source software, reference data and services Checkshot is built on, with their licences: exifr, laz-perf, Proj4js, epsg-index, the EPSG dataset, the NRCan NTv2 grid, Tauri and Esri imagery.">
+<meta property="og:url" content="https://checkshot.ca/credits.html">
+<meta property="og:image" content="https://checkshot.ca/assets/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Checkshot: a point cloud of a graded site with check shots marked on it.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E0E0F">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preload" href="assets/fonts/big-shoulders-700.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="assets/fonts/work-sans-400.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+<script>try{if(localStorage.getItem('cs-theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Checkshot home"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="23" fill="none" stroke="var(--logo-ring)" stroke-width="3"/><path d="M32 3V13M32 51V61M3 32H13M51 32H61" stroke="var(--logo-ring)" stroke-width="3" stroke-linecap="round"/><path d="M23.5 23.5 40.5 40.5M40.5 23.5 23.5 40.5" stroke="var(--logo-x)" stroke-width="5.5" stroke-linecap="round"/></svg><span>CHECK<b>SHOT</b></span></a>
+    <nav aria-label="Main">
+      <a href="./#how" class="opt">How it works</a>
+      <a href="./#requirements" class="opt">Requirements</a>
+      <a href="./#faq" class="opt">Questions</a>
+      <a href="download/" class="btn small">Download</a>
+      <button class="theme" type="button" id="theme-btn" aria-label="Switch to the light theme">Light</button>
+    </nav>
+  </div>
+</header>
+<main id="main">
+<div class="page-head"><div class="wrap">
+  <h1>Credits and licences</h1>
+  <p>Checkshot is built on work by these people and organisations. Thank you. The full licence texts are in the app under Credits &amp; licences, and in the THIRD-PARTY-NOTICES file installed with it.</p>
+</div></div>
+<div class="page-body"><div class="wrap"><div class="prose" style="max-width:48em">
+  <h2 style="margin-top:0">Software in the app</h2>
+  <ul class="credit-list">
+    <li><strong>exifr</strong> 7.1.3 by Mike Kova&#345;&iacute;k. Reads photo position, heading and camera data. <span class="lic">MIT License. github.com/MikeKovarik/exifr</span></li>
+    <li><strong>laz-perf</strong> 0.0.7 by Hobu, Inc. and contributors. Opens LAZ point clouds. Used unmodified. Based on the LASzip compression format created by Martin Isenburg (rapidlasso). <span class="lic">Apache License 2.0. github.com/hobuinc/laz-perf</span></li>
+    <li><strong>Proj4js</strong> 2.22.0 by Mike Adair, Richard Greenwood, Didier Richard, Stephen Irons, Olivier Terral, Calvin Metcalf and contributors. Converts between the coordinate systems in the full list. <span class="lic">MIT License. github.com/proj4js/proj4js</span></li>
+    <li><strong>epsg-index</strong> 2.0.0 by Jannis R (derhuerst). The machine-readable EPSG list the coordinate system search is built from, with data from epsg.io by MapTiler. <span class="lic">ISC License. github.com/derhuerst/epsg-index</span></li>
+    <li><strong>Tauri</strong> by the Tauri Programme within the Commons Conservancy. The desktop app shell. <span class="lic">MIT or Apache License 2.0. tauri.app</span></li>
+    <li><strong>Rust crates</strong>. Licence keys use ed25519-dalek (BSD-3-Clause) from the dalek-cryptography project. Dates use chrono, the clock check uses sha2 from the RustCrypto project, and data handling uses serde (each MIT or Apache-2.0). <span class="lic">Every crate in the app is listed with its licence text in THIRD-PARTY-NOTICES. The build stops if a GPL-family crate turns up.</span></li>
+    <li><strong>Archivo</strong> by Omnibus-Type, and <strong>IBM Plex Sans</strong> and <strong>IBM Plex Mono</strong> by IBM. The app's typefaces. <span class="lic">SIL Open Font License 1.1.</span></li>
+  </ul>
+  <h2>Methods and reference data</h2>
+  <ul class="credit-list">
+    <li><strong>EPSG Geodetic Parameter Dataset</strong>, &copy; International Association of Oil &amp; Gas Producers (IOGP). Coordinate system and datum parameters. The list in the app is filtered to systems it can convert, and its NAD83(CSRS) to WGS 84 rotations are converted from radians to arc-seconds, so it is not the official EPSG Dataset. <span class="lic">Used under the EPSG terms of use. epsg.org/terms-of-use.html</span></li>
+    <li><strong>NTv2 national transformation grid</strong> (ntv2_0.gsb, NAD27 to NAD83), &copy; His Majesty the King in Right of Canada, Natural Resources Canada (Canadian Geodetic Survey). <span class="lic">Contains information licensed under the Open Government Licence &ndash; Canada. open.canada.ca/en/open-government-licence-canada</span></li>
+    <li><strong>Transverse Mercator maths</strong>. Kr&uuml;ger series as given by C. F. F. Karney, &ldquo;Transverse Mercator with an accuracy of a few nanometers&rdquo;, Journal of Geodesy 85 (2011).</li>
+    <li><strong>LAS file format</strong>. ASPRS LAS Specification.</li>
+  </ul>
+  <h2>Online services, only if you turn them on</h2>
+  <ul class="credit-list">
+    <li><strong>Esri World Imagery</strong>, the satellite view. Imagery &copy; Esri, Maxar, Earthstar Geographics, and the GIS User Community. Powered by Esri. <span class="lic">Used through the ArcGIS Location Platform with your own ArcGIS key and under Esri's terms. Only the map area on screen is requested.</span></li>
+    <li><strong>ArcGIS World Geocoding Service</strong> by Esri, for Find place. <span class="lic">With your own ArcGIS key. Results are shown, not stored.</span></li>
+  </ul>
+  <h2>Works with, not included</h2>
+  <p>Checkshot is designed to work with OpenDroneMap and WebODM (OpenDroneMap contributors, AGPL-3.0), Autodesk ReCap and Civil 3D. None of them is included in or modified by the app.</p>
+  <h2>This website</h2>
+  <ul class="credit-list">
+    <li><strong>Big Shoulders</strong>, &copy; 2019 The Big Shoulders Project Authors. Headings. <span class="lic">SIL Open Font License 1.1.</span></li>
+    <li><strong>Work Sans</strong>, &copy; 2019 The Work Sans Project Authors. Text. <span class="lic">SIL Open Font License 1.1.</span></li>
+    <li><strong>IBM Plex Mono</strong>, &copy; 2017 IBM Corp. Figures. <span class="lic">SIL Open Font License 1.1.</span></li>
+  </ul>
+  <p>The licence files for these fonts are in <code>assets/fonts/</code>. The site loads nothing from other servers.</p>
+  <h2>Trademarks</h2>
+  <p>WebODM, OpenDroneMap, Civil 3D, ReCap, AutoCAD, Autel, EVO, DJI, Esri, ArcGIS, Windows and other product names are trademarks of their respective owners and are used here only to describe compatibility. No endorsement is implied.</p>
+</div></div></div>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <div class="tblock">
+      <div>
+        <a class="brand" href="./" aria-label="Checkshot home"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="23" fill="none" stroke="var(--logo-ring)" stroke-width="3"/><path d="M32 3V13M32 51V61M3 32H13M51 32H61" stroke="var(--logo-ring)" stroke-width="3" stroke-linecap="round"/><path d="M23.5 23.5 40.5 40.5M40.5 23.5 23.5 40.5" stroke="var(--logo-x)" stroke-width="5.5" stroke-linecap="round"/></svg><span>CHECK<b>SHOT</b></span></a>
+        <p>Drone-survey checking for Windows. Tag the control, convert the cloud, check it against your stick shots. Made in Alberta, Canada.</p>
+      </div>
+      <div>
+        <h2>Contact</h2>
+        <p><a href="mailto:support@checkshot.ca">support@checkshot.ca</a></p>
+        <p>Questions, bug reports and licence requests all go to this address.</p>
+      </div>
+      <div>
+        <h2>Site</h2>
+        <ul>
+          <li><a href="./">Home</a></li>
+          <li><a href="download/">Download</a></li>
+          <li><a href="credits.html">Credits and licences</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Legal</h2>
+        <ul>
+          <li><a href="legal/eula.html">Licence agreement</a></li>
+          <li><a href="legal/privacy.html">Privacy</a></li>
+          <li><a href="legal/terms.html">Terms of sale</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="fine">&copy; 2026 Checkshot. This site sets no cookies and runs no analytics. WebODM, OpenDroneMap, Civil 3D, ReCap, Autel, DJI, Esri, ArcGIS and Windows are trademarks of their owners and are named only to describe what the app works with. No endorsement is implied.</p>
+  </div>
+</footer>
+<script src="assets/js/site.js"></script>
+</body>
+</html>
