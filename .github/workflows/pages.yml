@@ -1,0 +1,39 @@
+name: Publish website
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy only the public site (no notes, tools or sources)
+        run: |
+          mkdir _site
+          cp -r index.html 404.html credits.html favicon.ico robots.txt sitemap.xml site.webmanifest assets download legal _site/
+          rm -rf _site/legal/src
+          touch _site/.nojekyll
+          # CNAME is added once checkshot.ca's DNS points here
+          if [ -f CNAME ] && [ "${{ vars.USE_CUSTOM_DOMAIN }}" = "true" ]; then cp CNAME _site/; fi
+          find _site -type f | wc -l
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
