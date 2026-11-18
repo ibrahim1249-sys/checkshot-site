@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en-CA" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checkshot Hero Preview</title>
+<meta name="description" content="Windows app for drone surveys. Tag ground control in your photos for OpenDroneMap, WebODM or ReCap, convert point clouds between 5,860 coordinate systems, and check the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.">
+<link rel="canonical" href="https://checkshot.ca/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Checkshot">
+<meta property="og:title" content="Checkshot: check a drone survey against your stick shots">
+<meta property="og:description" content="Windows app for drone surveys. Tag ground control in your photos for OpenDroneMap, WebODM or ReCap, convert point clouds between 5,860 coordinate systems, and check the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.">
+<meta property="og:url" content="https://checkshot.ca/">
+<meta property="og:image" content="https://checkshot.ca/assets/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Checkshot: a point cloud of a graded site with check shots marked on it.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#0E0E0F">
+<link rel="icon" href="favicon.ico" sizes="32x32">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preload" href="assets/fonts/big-shoulders-700.woff" as="font" type="font/woff" crossorigin>
+<link rel="preload" href="assets/fonts/work-sans-400.woff" as="font" type="font/woff" crossorigin>
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/reel.css">
+<script>try{if(localStorage.getItem('cs-theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Checkshot","applicationCategory":"EngineeringApplication","operatingSystem":"Windows 10, Windows 11, Linux","url":"https://checkshot.ca/","description":"Desktop app for drone surveys: GCP Tagger for OpenDroneMap, WebODM and ReCap, point cloud Converter and stick-shot Checker. Runs offline."}</script>
+<meta name="robots" content="noindex">
+</head>
+<body>
+<div style="background:var(--gold);color:var(--on-gold);text-align:center;padding:8px 12px;font-weight:700">Preview only, not on the live site. Current animation first, new carousel underneath.</div>
+
+<a class="skip" href="#main">Skip to the content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Checkshot home"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="23" fill="none" stroke="var(--logo-ring)" stroke-width="3"/><path d="M32 3V13M32 51V61M3 32H13M51 32H61" stroke="var(--logo-ring)" stroke-width="3" stroke-linecap="round"/><path d="M23.5 23.5 40.5 40.5M40.5 23.5 23.5 40.5" stroke="var(--logo-x)" stroke-width="5.5" stroke-linecap="round"/></svg><span>CHECK<b>SHOT</b></span></a>
+    <nav aria-label="Main">
+      <a href="./#how" class="opt">How it works</a>
+      <a href="./#requirements" class="opt">Requirements</a>
+      <a href="./#faq" class="opt">Questions</a>
+      <a href="download/" class="btn small">Download</a>
+      <button class="theme" type="button" id="theme-btn" aria-label="Switch to the light theme">Light</button>
+    </nav>
+  </div>
+</header>
+<main id="main">
+<section class="hero" aria-labelledby="h-hero">
+  <div class="wrap hero-head">
+    <h1 id="h-hero">Tag your ground control once. Send it to WebODM or ReCap.</h1>
+    <div class="hero-side">
+      <p>Checkshot is a Windows app for drone surveys on land development jobs. Click a target in one photo and the Tagger finds it in the others, then writes the control file for OpenDroneMap, WebODM or Autodesk ReCap. When the point cloud comes back, convert it to your coordinate system and check it against shots you took with the rod. It runs offline and it shows its numbers.</p>
+      <div>
+        <div class="hero-cta">
+          <a class="btn" href="download/">Download the beta</a>
+          <a href="#how">See the three steps</a>
+        </div>
+        <p class="hero-note">Free until March 31, 2027. Windows 10 and 11, no admin rights needed.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="survey" id="survey">
+    <div class="sv-stage">
+      <img class="sv-poster dark" src="assets/img/hero-poster-dark.webp" width="1600" height="760" alt="" fetchpriority="high">
+      <img class="sv-poster light" src="assets/img/hero-poster-light.webp" width="1600" height="760" alt="" loading="lazy">
+      <canvas tabindex="0" role="img" aria-label="Illustration with made-up data: a drone flies a grid over a graded site with roads, lots, a stormwater pond and a topsoil pile. The point cloud forms as photos are taken. Ground control targets and fifteen check shots then appear. Drag, or use the arrow keys, to turn the view."></canvas>
+      <div class="sv-labels"></div>
+      <button class="btn small sv-start" type="button">Play the illustration</button>
+    </div>
+    <div class="sv-readout" role="group" aria-label="Checker result for the illustration" aria-live="polite">
+      <p class="sv-verdict"></p>
+      <dl></dl>
+      <button class="sv-back" type="button" hidden>Back to the summary</button>
+    </div>
+    <div class="wrap sv-bar">
+      <button class="sv-play" type="button" aria-pressed="false"><span>Play</span></button>
+      <input class="sv-scrub" type="range" min="0" max="17" step="0.01" value="17" aria-label="Move through the survey: flight, ground control, check shots">
+      <p class="sv-status">Checked against 14 stick shots</p>
+    </div>
+  </div>
+  <div class="wrap sv-caption">
+    <p><strong>An illustration, not a survey.</strong> The site and every number on it are made up to show what the Checker reports. Drag to turn it. Pick a shot to read it.</p>
+    <ul class="sv-key" aria-label="Key">
+      <li class="x">ground control, used to fit the model</li>
+      <li style="--k:var(--ok)">check shot inside tolerance</li>
+      <li style="--k:var(--near)">close to it</li>
+      <li style="--k:var(--bad)">left out</li>
+    </ul>
+  </div>
+  <div class="wrap">
+    <details class="sv-data">
+      <summary>The illustration's check shots as a table</summary>
+      <div class="scroll-x"><table class="nums">
+        <caption class="vh">Made-up check shots used in the illustration</caption>
+        <thead><tr><th scope="col">Shot</th><th scope="col">Code</th><th scope="col">Shot Z (m)</th><th scope="col">Cloud Z (m)</th><th scope="col">&Delta;z (m)</th><th scope="col">Used</th></tr></thead>
+        <tbody id="sv-table-body"><tr><td colspan="6">Needs JavaScript.</td></tr></tbody>
+      </table></div>
+    </details>
+  </div>
+</section>
+
+
+<section class="wrap" aria-labelledby="h-new" style="padding-top:40px">
+  <p class="num" style="color:var(--gold-text);margin:0 0 6px">PREVIEW · NEW</p>
+  <h2 id="h-new">New: one animation per feature</h2>
+  <p style="color:var(--muted);max-width:60ch">The current animation is above. This carousel would replace it. It moves on by itself; click a tab to jump.</p>
+  <div class="reel" id="reel">
+    <div class="rl-tabs">
+      <button class="rl-tab" type="button" aria-pressed="true"><span class="n">01</span>Tag<small>Find the target in every photo</small></button>
+      <button class="rl-tab" type="button" aria-pressed="false"><span class="n">02</span>Check<small>Grade the cloud against rod shots</small></button>
+      <button class="rl-tab" type="button" aria-pressed="false"><span class="n">03</span>Convert<small>Into your grid, numbers shown</small></button>
+    </div>
+    <div class="rl-body">
+      <div class="rl-stage"><canvas role="img" aria-label=""></canvas></div>
+      <div class="rl-hud" aria-live="off"><div class="rl-hud-body"></div><button class="rl-pause" type="button" aria-pressed="false">Pause</button></div>
+    </div>
+  </div>
+</section>
+<section class="band" id="how" aria-labelledby="h-how">
+  <div class="wrap">
+    <div class="band-title">
+      <h2 id="h-how">The work, in order</h2>
+      <p>Three tools in one window. Use all three, or only the one you need today.</p>
+    </div>
+    <div>
+      <article class="step">
+          <h3><span class="n">1</span> Tag the control</h3>
+          <p>Load the GCP shots from your data collector and the photos from the flight. Click the centre of a target in one photo. The Tagger looks for that target in the other photos and puts what it finds at the front of the list for you to accept or reject.</p>
+        <figure class="shot">
+  <div class="frame">
+    <img class="dark" src="assets/shots/tagger-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.">
+    <img class="light" src="assets/shots/tagger-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.">
+  </div>
+  <figcaption>GCP Tagger with made-up control loaded, before the photos are added.</figcaption>
+</figure>
+          <ul>
+            <li>Writes <code>gcp_list.txt</code> for OpenDroneMap and WebODM, or a survey XML for Autodesk ReCap.</li>
+            <li>Notices when your firm's grid is shifted from the true projection, tells you by how much, and remembers it.</li>
+            <li>A point with no elevation in the file is left out of the export and named. Nothing is written with Z = 0.</li>
+            <li>Tick any shot as a check point and it is kept out of the control.</li>
+          </ul>
+      </article>
+      <article class="step">
+          <h3><span class="n">2</span> Convert the cloud</h3>
+          <p>Take a LAS, LAZ or text point cloud from the system your processing software wrote it in to the one your drawings are in. The Converter guesses the source system from the numbers, says that it is a guess, and tells you in words where the cloud lands before anything runs.</p>
+        <figure class="shot">
+  <a href="assets/shots/converter-dark.webp" aria-label="Open the screenshot full size">
+    <img class="dark" src="assets/shots/converter-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM point cloud to Alberta 3TM: a message stating the transform used and its largest difference from the exact maths, point counts, a download button and a plot of the cloud.">
+    <img class="light" src="assets/shots/converter-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM point cloud to Alberta 3TM: a message stating the transform used and its largest difference from the exact maths, point counts, a download button and a plot of the cloud.">
+  </a>
+  <figcaption>Converter result on a made-up cloud. The green line says which transform was used and how far it is from the exact maths.</figcaption>
+</figure>
+          <ul>
+            <li>5,860 EPSG projected systems, including Alberta 3TM and UTM.</li>
+            <li>NAD27 through Natural Resources Canada's NTv2 grid, inside Canada. Outside the grid it stops with a message.</li>
+            <li>US survey feet and international feet. X, Y and Z all come out in feet.</li>
+            <li>Out: a point file thinned on a grid for Civil 3D, or a LAS with the new coordinates.</li>
+            <li>Says plainly when a step changes geometry, and by how much.</li>
+          </ul>
+      </article>
+      <article class="step">
+          <h3><span class="n">3</span> Check it</h3>
+          <p>Load the cloud and your stick shots and set a tolerance. The Checker fits a plane to the cloud points around each shot, so slopes do not bias the height, and gives you the difference at every one.</p>
+        <figure class="shot">
+  <a href="assets/shots/checker-dark.webp" aria-label="Open the screenshot full size">
+    <img class="dark" src="assets/shots/checker-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Checker after grading a made-up cloud against 24 made-up shots: a Pass line with the RMSE, tiles for mean, RMSE, standard deviation, 95 percent and worst shot, doming and tilt tests, and a map of the shots.">
+    <img class="light" src="assets/shots/checker-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Checker after grading a made-up cloud against 24 made-up shots: a Pass line with the RMSE, tiles for mean, RMSE, standard deviation, 95 percent and worst shot, doming and tilt tests, and a map of the shots.">
+  </a>
+  <figcaption>Checker result on made-up data: verdict, statistics, bend tests and a map of the shots.</figcaption>
+</figure>
+          <ul>
+            <li>Mean, RMSE, standard deviation, the 95% figure (1.96 &times; RMSE), worst shot and share inside tolerance.</li>
+            <li>Tests for doming and tilt. With enough shots on slopes, a horizontal shift too.</li>
+            <li>Every shot in a table with its slope, roughness and point count. Untick one and the numbers update.</li>
+            <li>Results out as CSV.</li>
+          </ul>
+          <blockquote class="app">
+            <p>Independent shots only. Never the shots you tagged as GCPs: the model was fitted to those, so they always look good and prove nothing.</p>
+            <footer>From the Checker's own screen</footer>
+          </blockquote>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="band tinted" id="rules" aria-labelledby="h-rules">
+  <div class="wrap">
+    <div class="band-title">
+      <h2 id="h-rules">Ground rules</h2>
+      <p>What the app will and will not do with your data.</p>
+    </div>
+    <dl class="rows">
+      <div><dt>Your files stay put</dt><dd>Everything runs on your computer. No account, no upload, no usage reports. One thing is optional: if you turn on the satellite map, the app asks Esri for map tiles of the area on screen, using your own ArcGIS key.</dd></div>
+      <div><dt>One to one</dt><dd>Checkshot does not scale, shift or best-fit your data behind your back. When a step changes geometry, it tells you what changed and shows the numbers.</dd></div>
+      <div><dt>It shows its numbers</dt><dd>You get the verdict and the working: every shot's difference, the slope it sits on, how many cloud points were used. All of it goes into the CSV.</dd></div>
+      <div><dt>It stops instead of guessing</dt><dd>A NAD27 point outside the Canadian grid stops the conversion. A ReCap export in a system the app has never seen in a real ReCap file is refused. A shot with no elevation is left out and named.</dd></div>
+      <div><dt>Control is not a check</dt><dd>The model was fitted to your GCPs, so they will always agree with it. The Checker tells you to bring shots the model has never seen.</dd></div>
+      <div><dt>You still check it</dt><dd>Checkshot is a checking aid. It does not replace a qualified person, field verification or sign-off. Confirm results against your own control before you rely on them.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="band" id="requirements" aria-labelledby="h-req">
+  <div class="wrap">
+    <div class="band-title">
+      <h2 id="h-req">What you need</h2>
+    </div>
+    <dl class="rows plain">
+      <div><dt>Windows</dt><dd>Windows 10 or 11, 64-bit. The installer sets it up for your user account only, so it does not ask for admin rights. It uses Microsoft Edge WebView2, which Windows 10 and 11 already have.</dd></div>
+      <div><dt>Linux</dt><dd>A <code>.deb</code> for Ubuntu and Debian and an <code>.AppImage</code> are posted with each release.</dd></div>
+      <div><dt>Internet</dt><dd>Not needed. Only the optional satellite map and place search go online.</dd></div>
+      <div><dt>Files in</dt><dd>Drone photos (JPEG), control and check shots as CSV (PNEZD and similar), point clouds as LAS, LAZ or text.</dd></div>
+      <div><dt>Files out</dt><dd><code>gcp_list.txt</code>, ReCap survey XML, LAS, text point files, results CSV.</dd></div>
+      <div><dt>Works beside</dt><dd>OpenDroneMap and WebODM, Autodesk ReCap, Civil 3D. Checkshot does not process photos into a point cloud. It prepares the control going in and checks the cloud coming out.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="band" id="beta" aria-labelledby="h-beta">
+  <div class="wrap">
+    <div class="band-title">
+      <h2 id="h-beta">Beta and price</h2>
+    </div>
+    <div class="beta">
+      <h3>Free until March 31, 2027</h3>
+      <p>The beta is the full app and you may use it on paid work. After March 31, 2027 it needs a licence key, and it will not save files without one. The key is checked on your computer, so a licensed copy still works offline.</p>
+      <p>The price has not been set. It will be posted here before the beta ends.</p>
+      <p><a class="btn" href="download/">Download the beta</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="faq" aria-labelledby="h-faq">
+  <div class="wrap">
+    <div class="band-title">
+      <h2 id="h-faq">Questions</h2>
+      <p>Anything else: <a href="mailto:support@checkshot.ca">support@checkshot.ca</a></p>
+    </div>
+    <div class="faq">
+      <details><summary>Does Checkshot turn photos into a point cloud?</summary><div><p>No. That is the job of WebODM, ReCap or whatever you process with. The Tagger prepares the control those programs need. The Converter and the Checker work on the cloud they produce.</p></div></details>
+      <details><summary>Is anything uploaded?</summary><div><p>No. Photos, clouds and shots are read and processed on your computer, and the app does not report usage or crashes. If you turn on the satellite map or use place search, the app sends Esri the map area or the search text, with your own ArcGIS key. Leave them off and the app never goes online.</p></div></details>
+      <details><summary>Can I use my GCPs as check shots?</summary><div><p>You can load them, but the result means nothing. The model was fitted to those points. Shoot separate check shots and keep them out of the control. In the Tagger you can tick a shot as a check point so it is not exported as control.</p></div></details>
+      <details><summary>What is the shifted grid the Tagger talks about?</summary><div><p>Some firms carry a grid that sits a fixed distance off the true projection. If your control and your photo positions disagree by a steady offset, the Tagger says so, shows the offset and remembers it for the next job.</p></div></details>
+      <details><summary>Which coordinate systems are left out?</summary><div><p>Systems that need grid files the app does not carry (OSGB36 and US NAD27, for example), latitude and longitude systems, and projections its maths library cannot do. They are left out on purpose so that nothing converts wrongly.</p></div></details>
+      <details><summary>What tolerance should I use?</summary><div><p>That is your call and your client's. The Checker suggests 0.05 m for hard surfaces and 0.10 m for open ground as a starting point, and reports the numbers whatever you choose.</p></div></details>
+      <details><summary>What happens when the beta ends?</summary><div><p>On April 1, 2027 the app asks for a licence key. You paste the key once and it is checked offline. The price will be posted on this site before then.</p></div></details>
+      <details><summary>Who makes it?</summary><div><p>A civil engineer in Alberta who flies drone surveys for land development work and wanted to know how good each one was before building a surface from it. Write to <a href="mailto:support@checkshot.ca">support@checkshot.ca</a>.</p></div></details>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <div class="tblock">
+      <div>
+        <a class="brand" href="./" aria-label="Checkshot home"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="23" fill="none" stroke="var(--logo-ring)" stroke-width="3"/><path d="M32 3V13M32 51V61M3 32H13M51 32H61" stroke="var(--logo-ring)" stroke-width="3" stroke-linecap="round"/><path d="M23.5 23.5 40.5 40.5M40.5 23.5 23.5 40.5" stroke="var(--logo-x)" stroke-width="5.5" stroke-linecap="round"/></svg><span>CHECK<b>SHOT</b></span></a>
+        <p>Drone-survey checking for Windows. Tag the control, convert the cloud, check it against your stick shots. Made in Alberta, Canada.</p>
+      </div>
+      <div>
+        <h2>Contact</h2>
+        <p><a href="mailto:support@checkshot.ca">support@checkshot.ca</a></p>
+        <p>Questions, bug reports and licence requests all go to this address.</p>
+      </div>
+      <div>
+        <h2>Site</h2>
+        <ul>
+          <li><a href="./">Home</a></li>
+          <li><a href="download/">Download</a></li>
+          <li><a href="credits.html">Credits and licences</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Legal</h2>
+        <ul>
+          <li><a href="legal/eula.html">Licence agreement</a></li>
+          <li><a href="legal/privacy.html">Privacy</a></li>
+          <li><a href="legal/terms.html">Terms of sale</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="fine">&copy; 2026 Checkshot. This site sets no cookies and runs no analytics. WebODM, OpenDroneMap, Civil 3D, ReCap, Autel, DJI, Esri, ArcGIS and Windows are trademarks of their owners and are named only to describe what the app works with. No endorsement is implied.</p>
+  </div>
+</footer>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/hero.js"></script>
+<script src="assets/js/reel.js"></script>
+</body>
+</html>
