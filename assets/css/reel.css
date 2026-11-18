@@ -32,3 +32,15 @@
   .rl-tab { font-size: 1.15rem; padding: 12px; }
   .rl-tab small { display: none; }
 }
+
+/* "What's in each tool": real screenshots with short lists, under the carousel */
+.tools-sec { padding-top: clamp(40px, 6vw, 72px); padding-bottom: clamp(24px, 4vw, 48px); }
+.tools-lead { color: var(--muted); margin: 10px 0 24px; }
+.tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.tool-shot { border: 1px solid var(--line); background: var(--panel); margin-bottom: 14px; }
+.tool-shot img { width: 100%; }
+:root[data-theme="light"] .tool-shot img.dark, :root:not([data-theme="light"]) .tool-shot img.light { display: none; }
+.tool h3 { margin-bottom: 10px; }
+.tool ul { margin: 0; padding-left: 1.1em; font-size: 0.95rem; color: var(--ink); }
+.tool li { margin-bottom: 6px; }
+@media (max-width: 900px) { .tools { grid-template-columns: 1fr; gap: 36px; } }

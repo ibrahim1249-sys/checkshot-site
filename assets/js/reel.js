@@ -14,7 +14,7 @@
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var DUR = [9.5, 9.5, 9];
   var LABEL = [
-    'Illustration, made-up photo: a scope searches an aerial photo, passes a bucket lid and a board, and locks onto a black and white checkered ground control target, then the same target is found in three more photos.',
+    'Illustration, made-up photo: the Tagger scans an aerial photo of a gravel pad, checks a bucket lid and a board and skips them, then matches a black and white checkered ground control target at 97 percent and finds the same target in three more photos.',
     'Illustration, made-up data: a point cloud of a graded site turns slowly while ten rod shots drop onto it. Each shot is coloured by how far the cloud is from it, then the statistics appear.',
     'Illustration with a real example point: the point cloud stays still while the grid under it turns 2.41 degrees from UTM zone 12N to Alberta 3TM 114, and the coordinates change.'
   ];
@@ -52,116 +52,172 @@
     cx.fillStyle = col; cx.textAlign = align || 'left'; cx.textBaseline = 'middle'; cx.fillText(s, x, y);
   }
 
-  /* ---------- scene 1: Tag (the scope) ---------- */
-  var GW = 640, GH = 320, ground = null;
-  var TGT = { x: 292, y: 178 }, D1 = { x: 128, y: 112 }, D2 = { x: 430, y: 252 };
+  /* ---------- scene 1: Tag (search one photo, then find the target in the others) ---------- */
+  var GW = 640, GH = 320, GS = 1.5, ground = null;      // world units; the texture is drawn at 1.5× for detail
+  var TGT = { x: 292, y: 178 }, LAT = { x: 304, y: 168 };
+  var CANDS = [{ x: 128, y: 112, s: 0.34, what: 'bucket lid' }, { x: 446, y: 246, s: 0.41, what: 'board' }, { x: 214, y: 268, s: 0.22, what: 'stone' }];
   var PHOTO_W = 5472, PHOTO_H = 3648;                   // Autel XL705 frame, pixels
   function drawTarget(g, x, y, s, rot) {
     g.save(); g.translate(x, y); g.rotate(rot);
-    g.fillStyle = '#F4F1EA'; g.fillRect(-s - 1.2, -s - 1.2, 2 * s + 2.4, 2 * s + 2.4);
-    g.fillStyle = '#121212'; g.fillRect(-s, -s, s, s); g.fillRect(0, 0, s, s);
+    g.fillStyle = 'rgba(20,16,10,0.35)'; g.fillRect(-s + 0.9, -s + 0.9, 2 * s + 0.4, 2 * s + 0.4);   // sun from the upper left
+    g.fillStyle = '#EEEAE0'; g.fillRect(-s - 0.5, -s - 0.5, 2 * s + 1, 2 * s + 1);
+    g.fillStyle = '#161514'; g.fillRect(-s, -s, s, s); g.fillRect(0, 0, s, s);
+    g.fillStyle = 'rgba(120,100,70,0.35)'; [[-4.5, 3], [3.2, -5.1], [5.5, 4.4], [-2, -2.6]].forEach(function (d) { g.fillRect(d[0], d[1], 0.7, 0.7); });
     g.restore();
   }
+  function drawObjects(g) {                              // world coordinates, vector, so it stays sharp under the magnifier
+    var L = CANDS[0], B = CANDS[1], S = CANDS[2];
+    g.fillStyle = 'rgba(20,16,10,0.35)'; g.beginPath(); g.arc(L.x + 1.3, L.y + 1.3, 4.4, 0, 7); g.fill();
+    g.fillStyle = '#E4E0D6'; g.beginPath(); g.arc(L.x, L.y, 4.4, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,0.16)'; g.lineWidth = 0.5; g.beginPath(); g.arc(L.x, L.y, 3.3, 0, 7); g.stroke();
+    g.save(); g.translate(B.x, B.y); g.rotate(-0.5);
+    g.fillStyle = 'rgba(20,16,10,0.35)'; g.fillRect(-5, -2.4, 12, 7); g.fillStyle = '#C9BFA6'; g.fillRect(-6, -3.5, 12, 7);
+    g.strokeStyle = 'rgba(80,60,30,0.35)'; g.lineWidth = 0.4; for (var k = -2; k <= 2; k += 2) { g.beginPath(); g.moveTo(-6, k); g.lineTo(6, k + 0.3); g.stroke(); }
+    g.restore();
+    g.fillStyle = 'rgba(20,16,10,0.3)'; g.beginPath(); g.ellipse(S.x + 1, S.y + 1, 3.2, 2.4, 0.4, 0, 7); g.fill();
+    g.fillStyle = '#BDB6A6'; g.beginPath(); g.ellipse(S.x, S.y, 3.2, 2.4, 0.4, 0, 7); g.fill();
+    // survey lath with flagging tape beside the target, and its shadow
+    g.strokeStyle = 'rgba(20,16,10,0.35)'; g.lineWidth = 1.1; g.beginPath(); g.moveTo(LAT.x, LAT.y); g.lineTo(LAT.x + 9, LAT.y + 5); g.stroke();
+    g.fillStyle = '#D8C49A'; g.fillRect(LAT.x - 1, LAT.y - 1, 2.2, 2.2);
+    g.fillStyle = '#FF5FA2'; g.fillRect(LAT.x - 2.6, LAT.y - 0.6, 2, 1.2);
+    drawTarget(g, TGT.x, TGT.y, 7.2, 0.32);
+  }
+  // stockpiles: centre, radius, height, colour (topsoil, pit-run gravel, a small topsoil pile)
+  var PILES = [[468, 44, 50, 10, [96, 74, 54]], [60, 226, 40, 7, [150, 144, 132]], [196, 36, 24, 4.5, [102, 80, 58]]];
+  function pileR(P, x, y) { var a = Math.atan2(y - P[1], x - P[0]); return P[2] * (0.86 + 0.22 * vnoise(Math.cos(a) * 2 + P[0], Math.sin(a) * 2 + P[1])); }
+  function relief(x, y, grassAmt) {
+    var h = 0;
+    for (var q = 0; q < PILES.length; q++) {
+      var P = PILES[q], dx = x - P[0], dy = (y - P[1]) * 1.25, dd = Math.sqrt(dx * dx + dy * dy) / pileR(P, x, y);
+      if (dd < 1) h += P[3] * Math.pow(1 - dd * dd, 1.6) * (0.92 + 0.16 * vnoise(x / 5, y / 5));
+    }
+    return h + grassAmt * (0.9 * vnoise(x * 1.3, y * 1.3) + 0.5 * vnoise(x * 3.1, y * 2.7));
+  }
   function makeGround() {
-    var c = document.createElement('canvas'); c.width = GW; c.height = GH;
-    var g = c.getContext('2d'), im = g.createImageData(GW, GH), d = im.data, x, y, i = 0;
-    for (y = 0; y < GH; y++) for (x = 0; x < GW; x++, i += 4) {
-      var n = fbm(x / 34, y / 34), grain = hash(x * 0.91, y * 1.37), ry = Math.abs(y - (0.27 * x + 34));
-      var road = ry < 19, shoulder = ry >= 19 && ry < 24, track = !road && Math.abs(((x * 0.27 - y + 400) % 26) - 13) < 1.3 && n > 0.45;
-      var v = road ? 74 + 16 * n + 5 * grain : shoulder ? 118 + 10 * grain : 96 + 52 * n + 8 * grain - (track ? 16 : 0);
-      var green = !road && !shoulder && fbm(x / 60 + 9, y / 60) > 0.62;
-      d[i] = v * (green ? 0.86 : 1.07); d[i + 1] = v * (green ? 1.02 : 1.0); d[i + 2] = v * (green ? 0.74 : 0.84); d[i + 3] = 255;
+    var cw = GW * GS, ch = GH * GS, c = document.createElement('canvas'); c.width = cw; c.height = ch;
+    var g = c.getContext('2d'), im = g.createImageData(cw, ch), d = im.data, i = 0;
+    for (var Y = 0; Y < ch; Y++) for (var X = 0; X < cw; X++, i += 4) {
+      var x = X / GS, y = Y / GS, n = fbm(x / 40, y / 40), fine = vnoise(x * 0.9, y * 0.9), grain = hash(X * 0.73, Y * 1.31);
+      var grassA = clamp((fbm(x / 70 + 9, y / 70 + 2) - 0.56) / 0.06, 0, 1);
+      var h0 = relief(x, y, grassA), hx = relief(x + 0.8, y, grassA) - h0, hy = relief(x, y + 0.8, grassA) - h0;
+      var shade = clamp(1 + (-hx - hy) * 1.15, 0.45, 1.45);                  // light from the upper left
+      var pileC = null, pileK = 0;
+      for (var q = 0; q < PILES.length; q++) { var P = PILES[q], ddx = x - P[0], ddy = (y - P[1]) * 1.25, dd = Math.sqrt(ddx * ddx + ddy * ddy) / pileR(P, x, y);
+        if (dd < 1.08) { pileK = clamp((1.08 - dd) / 0.12, 0, 1); pileC = P[4]; } }
+      var ry = Math.abs(y - (0.27 * x + 34)), road = ry < 18, shoulder = ry >= 18 && ry < 23;
+      var grass = fbm(x / 70 + 9, y / 70 + 2), gr = clamp((grass - 0.56) / 0.06, 0, 1) * (road || shoulder ? 0 : 1);
+      var dirt = clamp((fbm(x / 55 + 4, y / 55 + 7) - 0.5) / 0.08, 0, 1) * (1 - gr);
+      var R, G, B;
+      if (road) { var a = 62 + 10 * n + 6 * fine + 5 * grain; R = a; G = a; B = a * 1.02; }
+      else if (shoulder) { var sh = 128 + 18 * fine + 10 * grain; R = sh * 1.04; G = sh; B = sh * 0.9; }
+      else {
+        var gv = 132 + 30 * n + 16 * fine + 12 * grain;                      // gravel pad
+        R = gv * 1.03; G = gv * 0.99; B = gv * 0.9;
+        var dv = 104 + 26 * n + 10 * grain; R = mix(R, dv * 1.12, dirt); G = mix(G, dv * 0.95, dirt); B = mix(B, dv * 0.74, dirt);
+        var blade = hash(X * 1.9, Y * 0.37), clump = vnoise(x * 0.45, y * 0.45), gg = 58 + 30 * fine + 24 * blade + 30 * clump;  // grass, with clumps
+        R = mix(R, gg * 0.86, gr); G = mix(G, gg * 1.02, gr); B = mix(B, gg * 0.6, gr);
+      }
+      if (pileC && !road) { var pv = 0.86 + 0.28 * fine + 0.12 * grain; R = mix(R, pileC[0] * pv, pileK); G = mix(G, pileC[1] * pv, pileK); B = mix(B, pileC[2] * pv, pileK); }
+      if (!road && grain > 0.985) { R += 40; G += 38; B += 34; }               // pebbles
+      if (!road) { R *= shade; G *= shade; B *= shade; }
+      d[i] = R; d[i + 1] = G; d[i + 2] = B; d[i + 3] = 255;
     }
     g.putImageData(im, 0, 0);
-    g.strokeStyle = 'rgba(236,228,206,0.55)'; g.lineWidth = 1; g.setLineDash([9, 9]);
-    g.beginPath(); g.moveTo(0, 34); g.lineTo(GW, 0.27 * GW + 34); g.stroke(); g.setLineDash([]);
+    g.scale(GS, GS);
+    g.strokeStyle = 'rgba(236,232,222,0.7)'; g.lineWidth = 1;                // road edge lines and centre dashes
+    [-17, 17].forEach(function (o) { g.beginPath(); g.moveTo(0, 34 + o); g.lineTo(GW, 0.27 * GW + 34 + o); g.stroke(); });
+    g.strokeStyle = 'rgba(214,184,96,0.75)'; g.setLineDash([10, 12]); g.beginPath(); g.moveTo(0, 34); g.lineTo(GW, 0.27 * GW + 34); g.stroke(); g.setLineDash([]);
+    g.strokeStyle = 'rgba(60,50,38,0.22)'; g.lineWidth = 3.2;                 // tire ruts across the pad
+    [0, 7].forEach(function (o) { g.beginPath(); g.moveTo(40, 300 - o); g.bezierCurveTo(180, 230 - o, 330, 236 - o, 620, 150 - o); g.stroke(); });
     drawObjects(g);
     return c;
   }
-  function drawObjects(g) {                              // world coordinates; vector, so it stays sharp when magnified
-    g.fillStyle = 'rgba(0,0,0,0.28)'; g.beginPath(); g.arc(D1.x + 1.2, D1.y + 1.2, 4.6, 0, 7); g.fill();
-    g.fillStyle = '#E8E4DA'; g.beginPath(); g.arc(D1.x, D1.y, 4.6, 0, 7); g.fill();            // bucket lid
-    g.strokeStyle = 'rgba(0,0,0,0.18)'; g.lineWidth = 0.5; g.beginPath(); g.arc(D1.x, D1.y, 3.4, 0, 7); g.stroke();
-    g.save(); g.translate(D2.x, D2.y); g.rotate(-0.5); g.fillStyle = 'rgba(0,0,0,0.28)'; g.fillRect(-5, -2.5, 12, 7);
-    g.fillStyle = '#CFC8B6'; g.fillRect(-6, -3.5, 12, 7); g.restore();                            // board
-    g.save(); g.translate(TGT.x + 1.2, TGT.y + 1.2); g.rotate(0.32); g.fillStyle = 'rgba(0,0,0,0.3)'; g.fillRect(-8.7, -8.7, 17.4, 17.4); g.restore();
-    drawTarget(g, TGT.x, TGT.y, 7.5, 0.32);
-  }
-  var PATH = [[0, { x: 70, y: 64 }], [1.9, D1], [2.7, D1], [3.9, D2], [4.7, D2], [6.0, TGT]];
-  function scopeAt(tt) {
+  var PATH = [[0, { x: 70, y: 70 }], [2.7, CANDS[0]], [3.5, CANDS[0]], [4.4, CANDS[1]], [5.1, CANDS[1]], [6.1, TGT]];
+  function lensAt(tt) {
     for (var i = 1; i < PATH.length; i++) if (tt <= PATH[i][0]) {
       var a = PATH[i - 1], b = PATH[i], k = ease(seg(tt, a[0], b[0]));
-      var wob = (a[1] === b[1]) ? 0 : Math.sin(tt * 3.1) * 6 * Math.sin(k * Math.PI);
-      return { x: mix(a[1].x, b[1].x, k) + wob, y: mix(a[1].y, b[1].y, k) - wob * 0.6 };
+      return { x: mix(a[1].x, b[1].x, k), y: mix(a[1].y, b[1].y, k) };
     }
     return { x: TGT.x, y: TGT.y };
   }
+  function brackets(x, y, r, col, w) {
+    var l = r * 0.42; cx.strokeStyle = col; cx.lineWidth = w;
+    [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (c) {
+      cx.beginPath(); cx.moveTo(x + c[0] * r, y + c[1] * (r - l)); cx.lineTo(x + c[0] * r, y + c[1] * r); cx.lineTo(x + c[0] * (r - l), y + c[1] * r); cx.stroke();
+    });
+  }
   function scene1(tt) {
     if (!ground) ground = makeGround();
-    var s = Math.max(W / GW, H / GH), ox = (W - GW * s) / 2, oy = (H - GH * s) / 2;
+    var pan = 1 + 0.035 * Math.min(tt, 9.5) / 9.5;                         // slow push-in, like looking closer
+    var s = Math.max(W / GW, H / GH) * pan, ox = (W - GW * s) / 2 + (TGT.x - GW / 2) * (pan - 1) * -s * 4, oy = (H - GH * s) / 2;
+    var sx = function (x) { return ox + x * s; }, sy = function (y) { return oy + y * s; };
     cx.imageSmoothingEnabled = true;
     cx.drawImage(ground, ox, oy, GW * s, GH * s);
-    cx.fillStyle = 'rgba(8,8,8,0.52)'; cx.fillRect(0, 0, W, H);
-    var p = scopeAt(tt), px = ox + p.x * s, py = oy + p.y * s, R = Math.min(H * 0.26, W * 0.2), Z = 3.2;
-    var lock = seg(tt, 6.0, 6.5);
-    // magnified view inside the scope
-    cx.save(); cx.beginPath(); cx.arc(px, py, R, 0, 7); cx.clip();
-    var sw = 2 * R / (s * Z);
-    cx.drawImage(ground, p.x - sw / 2, p.y - sw / 2, sw, sw, px - R, py - R, 2 * R, 2 * R);
-    cx.translate(px - p.x * s * Z, py - p.y * s * Z); cx.scale(s * Z, s * Z); drawObjects(cx);
-    cx.restore();
-    // reticle
-    var gold = C.gold;
-    cx.strokeStyle = gold; cx.lineWidth = 2;
-    cx.beginPath(); cx.arc(px, py, R, 0, 7); cx.stroke();
-    cx.lineWidth = 1.25; var gap = mix(R * 0.18, R * 0.1, lock);
-    cx.beginPath();
-    cx.moveTo(px - R, py); cx.lineTo(px - gap, py); cx.moveTo(px + gap, py); cx.lineTo(px + R, py);
-    cx.moveTo(px, py - R); cx.lineTo(px, py - gap); cx.moveTo(px, py + gap); cx.lineTo(px, py + R);
-    cx.stroke();
-    cx.fillStyle = gold;
-    for (var m = 1; m <= 4; m++) { var mr = gap + (R - gap) * m / 5; [[mr, 0], [-mr, 0], [0, mr], [0, -mr]].forEach(function (q) { cx.beginPath(); cx.arc(px + q[0], py + q[1], 1.6, 0, 7); cx.fill(); }); }
-    // reject labels
-    var rej = (tt > 2.0 && tt < 2.75) ? 'bucket lid' : (tt > 4.0 && tt < 4.75) ? 'board' : '';
-    if (rej) {
-      cx.strokeStyle = C.bad; cx.lineWidth = 2; var q = R * 0.2;
-      cx.beginPath(); cx.moveTo(px - q, py - q); cx.lineTo(px + q, py + q); cx.moveTo(px + q, py - q); cx.lineTo(px - q, py + q); cx.stroke();
-      text('NO MATCH · ' + rej, px, py + R + 16, 12, '#F2EFE8', 'center');
-    }
-    // lock
-    if (lock > 0) {
-      var b = mix(R * 0.55, R * 0.16, ease(lock)), bl = b * 0.45;
-      cx.strokeStyle = gold; cx.lineWidth = 2.5;
-      [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (c) {
-        cx.beginPath(); cx.moveTo(px + c[0] * b, py + c[1] * (b - bl)); cx.lineTo(px + c[0] * b, py + c[1] * b); cx.lineTo(px + c[0] * (b - bl), py + c[1] * b); cx.stroke();
-      });
-      if (lock >= 1) text('GCP 04  ' + (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) + ' px', px, py - R - 16, 12, '#F2EFE8', 'center');
+    var dim = 0.12 + 0.2 * seg(tt, 2.4, 3.0);
+    cx.fillStyle = 'rgba(10,10,10,' + dim + ')'; cx.fillRect(0, 0, W, H);
+    // photo label
+    cx.fillStyle = 'rgba(14,14,15,0.78)'; cx.fillRect(12, 12, 236, 24);
+    text('MAX_0142.JPG  ·  5472 × 3648', 22, 24, 11.5, '#F2EFE8', 'left');
+    // scan line, then candidates
+    var scan = seg(tt, 0.9, 2.4);
+    if (scan > 0 && scan < 1) { var lx = W * scan; cx.fillStyle = rgba(C.gold, 0.55); cx.fillRect(lx - 1, 0, 2, H); }
+    var all = CANDS.concat([{ x: TGT.x, y: TGT.y, s: 0.97, what: 'target' }]);
+    all.forEach(function (c, q) {
+      var px = sx(c.x), seen = W * scan > px || tt >= 2.4; if (!seen) return;
+      var isT = q === 3, done = isT ? tt > 6.1 : (q === 0 ? tt > 3.2 : q === 1 ? tt > 4.8 : tt > 2.4);
+      var col = isT && done ? C.gold : 'rgba(242,239,232,0.75)';
+      brackets(px, sy(c.y), 13, col, isT && done ? 2 : 1.2);
+      if (done) text(isT ? 'match ' + Math.round(c.s * 100) + '%' : Math.round(c.s * 100) + '%', px, sy(c.y) + 23, 10.5, isT ? '#F2EFE8' : 'rgba(242,239,232,0.7)', 'center');
+    });
+    // magnifier
+    var lens = seg(tt, 2.5, 2.9);
+    if (lens > 0) {
+      var p = lensAt(tt), px = sx(p.x), py = sy(p.y), R = Math.min(H * 0.2, W * 0.15) * ease(lens), Z = 2.6;
+      var lock = seg(tt, 6.1, 6.5), off = { x: px + R * 0.95, y: py - R * 0.95 };   // the lens sits up and right of what it looks at
+      var lx2 = off.x + R * 0.25, ly2 = off.y - R * 0.25;
+      if (ly2 - R < 8) ly2 = py + R * 1.2;
+      if (lx2 + R > W - Math.min(H * 0.25, W * 0.16) - 30) lx2 = px - R * 1.2;
+      cx.strokeStyle = 'rgba(242,239,232,0.6)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(px, py); cx.lineTo(lx2 - R * 0.7, ly2 + R * 0.7); cx.stroke();
+      cx.save(); cx.beginPath(); cx.arc(lx2, ly2, R, 0, 7); cx.clip();
+      var sw = 2 * R / (s * Z);
+      cx.drawImage(ground, (p.x - sw / 2) * GS, (p.y - sw / 2) * GS, sw * GS, sw * GS, lx2 - R, ly2 - R, 2 * R, 2 * R);
+      cx.translate(lx2 - p.x * s * Z, ly2 - p.y * s * Z); cx.scale(s * Z, s * Z); drawObjects(cx);
+      cx.restore();
+      cx.strokeStyle = '#0E0E0F'; cx.lineWidth = 4; cx.beginPath(); cx.arc(lx2, ly2, R + 1, 0, 7); cx.stroke();
+      cx.strokeStyle = lock > 0 ? C.gold : '#F2EFE8'; cx.lineWidth = 2; cx.beginPath(); cx.arc(lx2, ly2, R, 0, 7); cx.stroke();
+      var g2 = R * 0.16, a2 = R * 0.34;                                       // the Checkshot crosshair: a gap in the middle
+      cx.lineWidth = 1.4; cx.beginPath();
+      cx.moveTo(lx2 - a2, ly2); cx.lineTo(lx2 - g2, ly2); cx.moveTo(lx2 + g2, ly2); cx.lineTo(lx2 + a2, ly2);
+      cx.moveTo(lx2, ly2 - a2); cx.lineTo(lx2, ly2 - g2); cx.moveTo(lx2, ly2 + g2); cx.lineTo(lx2, ly2 + a2); cx.stroke();
+      if (lock >= 1) text('GCP 04  ' + (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) + ' px', lx2, ly2 - R - 14, 11.5, '#F2EFE8', 'center');
     }
     // the same target in three more photos
-    var th = Math.min(H * 0.25, W * 0.16), tx = W - th - 16, names = ['MAX_0143.JPG', 'MAX_0151.JPG', 'MAX_0152.JPG'];
+    var th = Math.min(H * 0.25, W * 0.16), tx = W - th - 16, names = ['MAX_0143.JPG', 'MAX_0151.JPG', 'MAX_0152.JPG'], sc = [95, 93, 96];
     var offs = [[-9, 5, 0.22, 1.1], [7, -6, -0.35, 0.9], [-3, -8, 0.6, 1.25]];
     for (var k = 0; k < 3; k++) {
-      var a = ease(seg(tt, 6.7 + k * 0.45, 7.2 + k * 0.45)); if (a <= 0) continue;
+      var a = ease(seg(tt, 6.8 + k * 0.45, 7.3 + k * 0.45)); if (a <= 0) continue;
       var ty = 16 + k * (th + 26), x0 = tx + (1 - a) * (th + 30);
       cx.globalAlpha = a;
+      cx.fillStyle = '#0E0E0F'; cx.fillRect(x0 - 3, ty - 3, th + 6, th + 22);
       cx.save(); cx.beginPath(); cx.rect(x0, ty, th, th); cx.clip();
       var o = offs[k], cxp = x0 + th / 2 + o[0] * th / 60, cyp = ty + th / 2 + o[1] * th / 60, zz = th / 46 * o[3];
       cx.translate(cxp, cyp); cx.rotate(o[2]); cx.scale(zz, zz);
-      cx.drawImage(ground, -TGT.x, -TGT.y); cx.translate(-TGT.x, -TGT.y); drawObjects(cx);
+      cx.drawImage(ground, (TGT.x - 40) * GS, (TGT.y - 40) * GS, 80 * GS, 80 * GS, -40, -40, 80, 80);
+      cx.translate(-TGT.x, -TGT.y); drawObjects(cx);
       cx.restore();
-      cx.strokeStyle = C.line; cx.lineWidth = 1; cx.strokeRect(x0 + 0.5, ty + 0.5, th - 1, th - 1);
-      cx.strokeStyle = gold; cx.lineWidth = 1.5; var r2 = th * 0.13;
-      cx.beginPath(); cx.arc(cxp, cyp, r2, 0, 7); cx.moveTo(cxp - r2 * 1.7, cyp); cx.lineTo(cxp - r2 * 0.5, cyp); cx.moveTo(cxp + r2 * 0.5, cyp); cx.lineTo(cxp + r2 * 1.7, cyp); cx.stroke();
-      text(names[k] + '  ✓', x0, ty + th + 11, 11, '#F2EFE8', 'left');
+      brackets(cxp, cyp, th * 0.16, C.gold, 1.6);
+      text(names[k], x0, ty + th + 9, 10.5, '#F2EFE8', 'left');
+      text(sc[k] + '% ✓', x0 + th, ty + th + 9, 10.5, C['gold-text'], 'right');
       cx.globalAlpha = 1;
     }
-    var found = tt < 6.0 ? 0 : 1 + [0, 1, 2].filter(function (k) { return tt > 7.2 + k * 0.45; }).length;
-    var status = tt < 1.9 ? 'Searching MAX_0142.JPG' : tt < 2.75 ? 'No match: bucket lid' : tt < 3.95 ? 'Searching' : tt < 4.75 ? 'No match: board' : tt < 6.0 ? 'Searching' : found < 4 ? 'GCP 04 found' : 'GCP 04 found in 4 photos';
-    setHud('<p class="rl-k">1 · Tag control</p><p class="rl-desc">Click a target in one photo. The Tagger finds it in the others and writes the control file.</p><p class="rl-status">' + status + '</p><dl>' +
+    var found = tt < 6.1 ? 0 : 1 + [0, 1, 2].filter(function (k) { return tt > 7.3 + k * 0.45; }).length;
+    var status = tt < 0.9 ? 'Photo MAX_0142.JPG' : tt < 2.4 ? 'Scanning for GCP 04' : tt < 3.2 ? 'Checking: bucket lid' : tt < 3.5 ? 'Bucket lid: 34%, skipped' : tt < 4.8 ? 'Checking: board' : tt < 5.1 ? 'Board: 41%, skipped' : tt < 6.1 ? 'Checking the target' : found < 4 ? 'GCP 04 found, 97%' : 'GCP 04 found in 4 photos';
+    setHud('<p class="rl-k">1 · Tag control</p><p class="rl-desc">Click a target in one photo. The Tagger finds it in the others and writes the control file.</p>' +
+      '<p class="rl-status">' + status + '</p><dl>' +
       line('Target', 'checkered, 2 × 2') + line('Photos with GCP 04', found + ' of 4') +
       line('Centre in MAX_0142', tt >= 6.5 ? (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) : '…') +
-      line('Writes', tt > 8.6 ? 'gcp_list.txt · ReCap XML' : '…', tt > 8.6 ? 'hi' : '') + '</dl>' +
-      '<p class="rl-note">Made-up photo. You click one target; the Tagger finds it in the rest for you to accept or reject.</p>');
+      line('Writes', tt > 8.7 ? 'gcp_list.txt · ReCap XML' : '…', tt > 8.7 ? 'hi' : '') + '</dl>' +
+      '<p class="rl-note">Made-up photo and scores. You accept or reject each find; nothing is used until you do.</p>');
   }
 
   /* ---------- the synthetic site for scenes 2 and 3 ---------- */

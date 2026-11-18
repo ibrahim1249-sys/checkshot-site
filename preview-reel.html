@@ -120,6 +120,28 @@
 </section>
 
 
+
+<section class="wrap tools-sec" aria-labelledby="h-tools">
+  <h2 id="h-tools">What's in each tool</h2>
+  <p class="tools-lead">The real app, not a drawing. Screenshots use made-up control and clouds.</p>
+  <div class="tools">
+    <article class="tool">
+      <div class="tool-shot"><img class="dark" src="assets/shots/tagger-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The GCP Tagger with seven made-up control points loaded: a site map, the control list, and the three steps to tag a target."><img class="light" src="assets/shots/tagger-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The GCP Tagger with seven made-up control points loaded: a site map, the control list, and the three steps to tag a target."></div>
+      <h3>Tagger</h3>
+      <ul><li>Writes <code>gcp_list.txt</code> for OpenDroneMap and WebODM, or survey XML for Autodesk ReCap.</li><li>Notices when your firm's grid is shifted from the true projection, says by how much, and remembers it.</li><li>A point with no elevation is left out and named. Nothing is written with Z = 0.</li><li>Tick any shot as a check point to keep it out of the control.</li></ul>
+    </article>
+    <article class="tool">
+      <div class="tool-shot"><img class="dark" src="assets/shots/checker-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Checker after grading a made-up cloud against 24 made-up shots: a Pass line, statistics tiles, doming and tilt tests, and a map of the shots."><img class="light" src="assets/shots/checker-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Checker after grading a made-up cloud against 24 made-up shots: a Pass line, statistics tiles, doming and tilt tests, and a map of the shots."></div>
+      <h3>Checker</h3>
+      <ul><li>Mean, RMSE, standard deviation, 95% (1.96 &times; RMSE), worst shot and share inside tolerance.</li><li>Tests for doming and tilt; with enough shots on slopes, a horizontal shift too.</li><li>Every shot in a table. Untick one and the numbers update.</li><li>Results out as CSV.</li></ul>
+    </article>
+    <article class="tool">
+      <div class="tool-shot"><img class="dark" src="assets/shots/converter-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM cloud to Alberta 3TM: the transform used, its largest difference from the exact maths, and a plot of the cloud."><img class="light" src="assets/shots/converter-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM cloud to Alberta 3TM: the transform used, its largest difference from the exact maths, and a plot of the cloud."></div>
+      <h3>Converter</h3>
+      <ul><li>5,860 EPSG projected systems, including Alberta 3TM and UTM.</li><li>NAD27 through Natural Resources Canada's NTv2 grid, inside Canada.</li><li>US survey feet and international feet.</li><li>Out: a thinned point file for Civil 3D, or a LAS. Says when a step changes geometry, and by how much.</li></ul>
+    </article>
+  </div>
+</section>
 <section class="band tinted" id="rules" aria-labelledby="h-rules">
   <div class="wrap">
     <div class="band-title">
