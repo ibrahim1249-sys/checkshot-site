@@ -37,7 +37,7 @@
   <div class="wrap">
     <a class="brand" href="./" aria-label="Checkshot home"><svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="23" fill="none" stroke="var(--logo-ring)" stroke-width="3"/><path d="M32 3V13M32 51V61M3 32H13M51 32H61" stroke="var(--logo-ring)" stroke-width="3" stroke-linecap="round"/><path d="M23.5 23.5 40.5 40.5M40.5 23.5 23.5 40.5" stroke="var(--logo-x)" stroke-width="5.5" stroke-linecap="round"/></svg><span>CHECK<b>SHOT</b></span></a>
     <nav aria-label="Main">
-      <a href="./#how" class="opt">How it works</a>
+      <a href="#reel" class="opt">How it works</a>
       <a href="./#requirements" class="opt">Requirements</a>
       <a href="./#faq" class="opt">Questions</a>
       <a href="download/" class="btn small">Download</a>
@@ -54,7 +54,7 @@
       <div>
         <div class="hero-cta">
           <a class="btn" href="download/">Download the beta</a>
-          <a href="#how">See the three steps</a>
+          <a href="#reel">See the three features</a>
         </div>
         <p class="hero-note">Free until March 31, 2027. Windows 10 and 11, no admin rights needed.</p>
       </div>
@@ -118,72 +118,7 @@
     </div>
   </div>
 </section>
-<section class="band" id="how" aria-labelledby="h-how">
-  <div class="wrap">
-    <div class="band-title">
-      <h2 id="h-how">The work, in order</h2>
-      <p>Three tools in one window. Use all three, or only the one you need today.</p>
-    </div>
-    <div>
-      <article class="step">
-          <h3><span class="n">1</span> Tag the control</h3>
-          <p>Load the GCP shots from your data collector and the photos from the flight. Click the centre of a target in one photo. The Tagger looks for that target in the other photos and puts what it finds at the front of the list for you to accept or reject.</p>
-        <figure class="shot">
-  <div class="frame">
-    <img class="dark" src="assets/shots/tagger-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.">
-    <img class="light" src="assets/shots/tagger-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The GCP Tagger with seven made-up control points loaded: a site map on the left, the control list under it, and the three steps to tag a target on the right.">
-  </div>
-  <figcaption>GCP Tagger with made-up control loaded, before the photos are added.</figcaption>
-</figure>
-          <ul>
-            <li>Writes <code>gcp_list.txt</code> for OpenDroneMap and WebODM, or a survey XML for Autodesk ReCap.</li>
-            <li>Notices when your firm's grid is shifted from the true projection, tells you by how much, and remembers it.</li>
-            <li>A point with no elevation in the file is left out of the export and named. Nothing is written with Z = 0.</li>
-            <li>Tick any shot as a check point and it is kept out of the control.</li>
-          </ul>
-      </article>
-      <article class="step">
-          <h3><span class="n">2</span> Convert the cloud</h3>
-          <p>Take a LAS, LAZ or text point cloud from the system your processing software wrote it in to the one your drawings are in. The Converter guesses the source system from the numbers, says that it is a guess, and tells you in words where the cloud lands before anything runs.</p>
-        <figure class="shot">
-  <a href="assets/shots/converter-dark.webp" aria-label="Open the screenshot full size">
-    <img class="dark" src="assets/shots/converter-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM point cloud to Alberta 3TM: a message stating the transform used and its largest difference from the exact maths, point counts, a download button and a plot of the cloud.">
-    <img class="light" src="assets/shots/converter-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM point cloud to Alberta 3TM: a message stating the transform used and its largest difference from the exact maths, point counts, a download button and a plot of the cloud.">
-  </a>
-  <figcaption>Converter result on a made-up cloud. The green line says which transform was used and how far it is from the exact maths.</figcaption>
-</figure>
-          <ul>
-            <li>5,860 EPSG projected systems, including Alberta 3TM and UTM.</li>
-            <li>NAD27 through Natural Resources Canada's NTv2 grid, inside Canada. Outside the grid it stops with a message.</li>
-            <li>US survey feet and international feet. X, Y and Z all come out in feet.</li>
-            <li>Out: a point file thinned on a grid for Civil 3D, or a LAS with the new coordinates.</li>
-            <li>Says plainly when a step changes geometry, and by how much.</li>
-          </ul>
-      </article>
-      <article class="step">
-          <h3><span class="n">3</span> Check it</h3>
-          <p>Load the cloud and your stick shots and set a tolerance. The Checker fits a plane to the cloud points around each shot, so slopes do not bias the height, and gives you the difference at every one.</p>
-        <figure class="shot">
-  <a href="assets/shots/checker-dark.webp" aria-label="Open the screenshot full size">
-    <img class="dark" src="assets/shots/checker-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Checker after grading a made-up cloud against 24 made-up shots: a Pass line with the RMSE, tiles for mean, RMSE, standard deviation, 95 percent and worst shot, doming and tilt tests, and a map of the shots.">
-    <img class="light" src="assets/shots/checker-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Checker after grading a made-up cloud against 24 made-up shots: a Pass line with the RMSE, tiles for mean, RMSE, standard deviation, 95 percent and worst shot, doming and tilt tests, and a map of the shots.">
-  </a>
-  <figcaption>Checker result on made-up data: verdict, statistics, bend tests and a map of the shots.</figcaption>
-</figure>
-          <ul>
-            <li>Mean, RMSE, standard deviation, the 95% figure (1.96 &times; RMSE), worst shot and share inside tolerance.</li>
-            <li>Tests for doming and tilt. With enough shots on slopes, a horizontal shift too.</li>
-            <li>Every shot in a table with its slope, roughness and point count. Untick one and the numbers update.</li>
-            <li>Results out as CSV.</li>
-          </ul>
-          <blockquote class="app">
-            <p>Independent shots only. Never the shots you tagged as GCPs: the model was fitted to those, so they always look good and prove nothing.</p>
-            <footer>From the Checker's own screen</footer>
-          </blockquote>
-      </article>
-    </div>
-  </div>
-</section>
+
 
 <section class="band tinted" id="rules" aria-labelledby="h-rules">
   <div class="wrap">
