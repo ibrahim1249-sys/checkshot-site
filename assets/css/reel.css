@@ -44,3 +44,5 @@
 .tool ul { margin: 0; padding-left: 1.1em; font-size: 0.95rem; color: var(--ink); }
 .tool li { margin-bottom: 6px; }
 @media (max-width: 900px) { .tools { grid-template-columns: 1fr; gap: 36px; } }
+.reel-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 24px; }
+.reel-cta span { color: var(--muted); font-size: 0.95rem; }
