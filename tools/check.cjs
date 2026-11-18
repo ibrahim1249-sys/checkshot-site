@@ -110,7 +110,7 @@ const audit = () => {
   }
   {
     const c = await b.newContext({ viewport: { width: 1440, height: 900 }, javaScriptEnabled: false }); const p = await c.newPage(); await p.goto(origin + '/');
-    ok(await p.isVisible('h1') && await p.isVisible('.sv-poster.dark') && await p.isVisible('#how'), 'no JavaScript: the page still reads, with the still image'); await c.close();
+    ok(await p.isVisible('h1') && await p.isVisible('.sv-poster.dark') && await p.isVisible('#reel') && /Tag control/.test(await p.textContent('#reel')), 'no JavaScript: the page still reads, with the still image and the three features in words'); await c.close();
   }
   await b.close(); s.close();
   console.log(fails ? `\n${fails} check(s) failed` : '\nall checks passed'); process.exit(fails ? 1 : 0);

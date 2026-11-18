@@ -241,6 +241,7 @@
   }
 
   /* ---------- camera ---------- */
+  var SHIFT = +(root.dataset.shift || 0.2), ZOOM = +(root.dataset.zoom || 1);   // wide screens: sideways room for overlays, and how far back the camera sits
   var az = -0.62, el = 0.56, W = 1, H = 1, dpr = 1, mvp = new Float32Array(16), userMoved = false, FOV = 34 * Math.PI / 180;
   function resize() {
     var r = stageEl.getBoundingClientRect(); dpr = Math.min(window.devicePixelRatio || 1, small ? 1.5 : 2) * quality;
@@ -249,7 +250,7 @@
   }
   function camera() {
     var asp = W / H, f = 1 / Math.tan(FOV / 2), fx = f / asp, wide = W > 860;
-    var dist = Math.max(112 * f, (wide ? 238 : 162) * fx) * 1.06;
+    var dist = Math.max(112 * f, (wide ? 238 : 162) * fx) * 1.06 * (wide ? ZOOM : 1);
     var ce = Math.cos(el), ex = Math.sin(az) * ce * dist, ey = -Math.cos(az) * ce * dist, ez = Math.sin(el) * dist;
     var tz = 100;
     // view basis: forward = target - eye, world up = +z
@@ -264,7 +265,7 @@
     mvp[4] = fx * sy; mvp[5] = f * uy; mvp[6] = -A * fwy; mvp[7] = fwy;
     mvp[8] = 0;       mvp[9] = f * uz; mvp[10] = -A * fwz; mvp[11] = fwz;
     mvp[12] = fx * tx; mvp[13] = f * ty; mvp[14] = A * tzv + B; mvp[15] = -tzv;
-    if (wide) { var sh = 0.2; mvp[0] += sh * mvp[3]; mvp[4] += sh * mvp[7]; mvp[8] += sh * mvp[11]; mvp[12] += sh * mvp[15]; }  // leave room for the readout on the left
+    if (wide) { var sh = SHIFT; mvp[0] += sh * mvp[3]; mvp[4] += sh * mvp[7]; mvp[8] += sh * mvp[11]; mvp[12] += sh * mvp[15]; }  // leave room for the readout on the left
     else { mvp[1] -= 0.08 * mvp[3]; mvp[5] -= 0.08 * mvp[7]; mvp[9] -= 0.08 * mvp[11]; mvp[13] -= 0.08 * mvp[15]; }
   }
   function project(p, out) {
