@@ -10,15 +10,15 @@
   if (!root || !root.querySelector('canvas').getContext) return;
   var cv = root.querySelector('canvas'), cx = cv.getContext('2d');
   var tabs = [].slice.call(root.querySelectorAll('.rl-tab'));
-  var hud = root.querySelector('.rl-hud-body'), pauseBtn = root.querySelector('.rl-pause');
+  var hud = root.querySelector('.rl-hud-body');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   var DUR = [9.5, 9.5, 9];
   var LABEL = [
-    'Illustration, made-up photo: the Tagger scans an aerial photo of a gravel pad, checks a bucket lid and a board and skips them, then matches a black and white checkered ground control target at 97 percent and finds the same target in three more photos.',
+    'Illustration, made-up photo: an aerial photo of a gravel pad with stockpiles. The pointer clicks the centre of a black and white checkered ground control target once, the crosshair settles on its centre, then the same target pops up in five more photos.',
     'Illustration, made-up data: a point cloud of a graded site turns slowly while ten rod shots drop onto it. Each shot is coloured by how far the cloud is from it, then the statistics appear.',
-    'Illustration with a real example point: the point cloud stays still while the grid under it turns 2.41 degrees from UTM zone 12N to Alberta 3TM 114, and the coordinates change.'
+    'Illustration with a real example point: a gold sweep crosses the point cloud, converting it from UTM zone 12N to Alberta 3TM 114. The new grid is drawn in behind the sweep, turned 2.41 degrees from the old one, and the example point\'s coordinates change.'
   ];
-  var W = 0, H = 0, DPR = 1, scene = 0, t = 0, last = 0, raf = 0, visible = false, userPaused = false, hudCache = '';
+  var W = 0, H = 0, DPR = 1, scene = 0, t = 0, last = 0, raf = 0, visible = false, manual = false, hudCache = '';
 
   /* ---------- helpers ---------- */
   function clamp(x, a, b) { return x < a ? a : x > b ? b : x; }
@@ -132,92 +132,85 @@
     drawObjects(g);
     return c;
   }
-  var PATH = [[0, { x: 70, y: 70 }], [2.7, CANDS[0]], [3.5, CANDS[0]], [4.4, CANDS[1]], [5.1, CANDS[1]], [6.1, TGT]];
-  function lensAt(tt) {
-    for (var i = 1; i < PATH.length; i++) if (tt <= PATH[i][0]) {
-      var a = PATH[i - 1], b = PATH[i], k = ease(seg(tt, a[0], b[0]));
-      return { x: mix(a[1].x, b[1].x, k), y: mix(a[1].y, b[1].y, k) };
-    }
-    return { x: TGT.x, y: TGT.y };
-  }
   function brackets(x, y, r, col, w) {
     var l = r * 0.42; cx.strokeStyle = col; cx.lineWidth = w;
     [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (c) {
       cx.beginPath(); cx.moveTo(x + c[0] * r, y + c[1] * (r - l)); cx.lineTo(x + c[0] * r, y + c[1] * r); cx.lineTo(x + c[0] * (r - l), y + c[1] * r); cx.stroke();
     });
   }
+  function pointer(x, y, down) {                          // a plain mouse pointer
+    cx.save(); cx.translate(x, y); if (down) cx.scale(0.9, 0.9);
+    cx.beginPath(); cx.moveTo(0, 0); cx.lineTo(0, 17); cx.lineTo(4.4, 13); cx.lineTo(7.6, 20); cx.lineTo(10.2, 18.8); cx.lineTo(7.1, 12); cx.lineTo(12.5, 12); cx.closePath();
+    cx.fillStyle = '#FFFFFF'; cx.fill(); cx.strokeStyle = '#111'; cx.lineWidth = 1.2; cx.stroke(); cx.restore();
+  }
+  var CLICK = 3.0, PHOTOS = [['MAX_0143.JPG', [-9, 5, 0.22, 1.1]], ['MAX_0144.JPG', [7, -6, -0.35, 0.9]], ['MAX_0151.JPG', [-3, -8, 0.6, 1.25]], ['MAX_0152.JPG', [6, 7, -0.1, 1.0]], ['MAX_0160.JPG', [-6, -2, 0.9, 1.15]]];
   function scene1(tt) {
     if (!ground) ground = makeGround();
-    var pan = 1 + 0.035 * Math.min(tt, 9.5) / 9.5;                         // slow push-in, like looking closer
-    var s = Math.max(W / GW, H / GH) * pan, ox = (W - GW * s) / 2 + (TGT.x - GW / 2) * (pan - 1) * -s * 4, oy = (H - GH * s) / 2;
-    var sx = function (x) { return ox + x * s; }, sy = function (y) { return oy + y * s; };
+    var pan = 1 + 0.04 * ease(seg(tt, 0, CLICK + 0.8));                     // gentle push-in toward the target
+    var s = Math.max(W / GW, H / GH) * pan, ox = (W - GW * s) / 2 - (TGT.x - GW / 2) * (pan - 1) * s, oy = (H - GH * s) / 2 - (TGT.y - GH / 2) * (pan - 1) * s;
+    var tx0 = ox + TGT.x * s, ty0 = oy + TGT.y * s;
     cx.imageSmoothingEnabled = true;
     cx.drawImage(ground, ox, oy, GW * s, GH * s);
-    var dim = 0.12 + 0.2 * seg(tt, 2.4, 3.0);
-    cx.fillStyle = 'rgba(10,10,10,' + dim + ')'; cx.fillRect(0, 0, W, H);
-    // photo label
+    var strip = seg(tt, 4.3, 4.9);
+    cx.fillStyle = 'rgba(10,10,10,' + (0.08 + 0.32 * strip) + ')'; cx.fillRect(0, 0, W, H);
     cx.fillStyle = 'rgba(14,14,15,0.78)'; cx.fillRect(12, 12, 236, 24);
     text('MAX_0142.JPG  ·  5472 × 3648', 22, 24, 11.5, '#F2EFE8', 'left');
-    // scan line, then candidates
-    var scan = seg(tt, 0.9, 2.4);
-    if (scan > 0 && scan < 1) { var lx = W * scan; cx.fillStyle = rgba(C.gold, 0.55); cx.fillRect(lx - 1, 0, 2, H); }
-    var all = CANDS.concat([{ x: TGT.x, y: TGT.y, s: 0.97, what: 'target' }]);
-    all.forEach(function (c, q) {
-      var px = sx(c.x), seen = W * scan > px || tt >= 2.4; if (!seen) return;
-      var isT = q === 3, done = isT ? tt > 6.1 : (q === 0 ? tt > 3.2 : q === 1 ? tt > 4.8 : tt > 2.4);
-      var col = isT && done ? C.gold : 'rgba(242,239,232,0.75)';
-      brackets(px, sy(c.y), 13, col, isT && done ? 2 : 1.2);
-      if (done) text(isT ? 'match ' + Math.round(c.s * 100) + '%' : Math.round(c.s * 100) + '%', px, sy(c.y) + 23, 10.5, isT ? '#F2EFE8' : 'rgba(242,239,232,0.7)', 'center');
-    });
-    // magnifier
-    var lens = seg(tt, 2.5, 2.9);
-    if (lens > 0) {
-      var p = lensAt(tt), px = sx(p.x), py = sy(p.y), R = Math.min(H * 0.2, W * 0.15) * ease(lens), Z = 2.6;
-      var lock = seg(tt, 6.1, 6.5), off = { x: px + R * 0.95, y: py - R * 0.95 };   // the lens sits up and right of what it looks at
-      var lx2 = off.x + R * 0.25, ly2 = off.y - R * 0.25;
-      if (ly2 - R < 8) ly2 = py + R * 1.2;
-      if (lx2 + R > W - Math.min(H * 0.25, W * 0.16) - 30) lx2 = px - R * 1.2;
-      cx.strokeStyle = 'rgba(242,239,232,0.6)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(px, py); cx.lineTo(lx2 - R * 0.7, ly2 + R * 0.7); cx.stroke();
-      cx.save(); cx.beginPath(); cx.arc(lx2, ly2, R, 0, 7); cx.clip();
-      var sw = 2 * R / (s * Z);
-      cx.drawImage(ground, (p.x - sw / 2) * GS, (p.y - sw / 2) * GS, sw * GS, sw * GS, lx2 - R, ly2 - R, 2 * R, 2 * R);
-      cx.translate(lx2 - p.x * s * Z, ly2 - p.y * s * Z); cx.scale(s * Z, s * Z); drawObjects(cx);
-      cx.restore();
-      cx.strokeStyle = '#0E0E0F'; cx.lineWidth = 4; cx.beginPath(); cx.arc(lx2, ly2, R + 1, 0, 7); cx.stroke();
-      cx.strokeStyle = lock > 0 ? C.gold : '#F2EFE8'; cx.lineWidth = 2; cx.beginPath(); cx.arc(lx2, ly2, R, 0, 7); cx.stroke();
-      var g2 = R * 0.16, a2 = R * 0.34;                                       // the Checkshot crosshair: a gap in the middle
-      cx.lineWidth = 1.4; cx.beginPath();
-      cx.moveTo(lx2 - a2, ly2); cx.lineTo(lx2 - g2, ly2); cx.moveTo(lx2 + g2, ly2); cx.lineTo(lx2 + a2, ly2);
-      cx.moveTo(lx2, ly2 - a2); cx.lineTo(lx2, ly2 - g2); cx.moveTo(lx2, ly2 + g2); cx.lineTo(lx2, ly2 + a2); cx.stroke();
-      if (lock >= 1) text('GCP 04  ' + (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) + ' px', lx2, ly2 - R - 14, 11.5, '#F2EFE8', 'center');
+    // the pointer comes in and clicks the centre of the target once
+    var mv = ease(seg(tt, 1.0, CLICK - 0.15)), down = tt > CLICK - 0.15 && tt < CLICK + 0.15;
+    if (tt < CLICK + 1.2) {
+      var mx = mix(W * 0.08, tx0 + 1, mv), my = mix(H * 0.92, ty0 + 1, mv) - Math.sin(mv * Math.PI) * H * 0.08;
+      cx.globalAlpha = 1 - seg(tt, CLICK + 0.8, CLICK + 1.2); pointer(mx, my, down); cx.globalAlpha = 1;
     }
-    // the same target in three more photos
-    var th = Math.min(H * 0.25, W * 0.16), tx = W - th - 16, names = ['MAX_0143.JPG', 'MAX_0151.JPG', 'MAX_0152.JPG'], sc = [95, 93, 96];
-    var offs = [[-9, 5, 0.22, 1.1], [7, -6, -0.35, 0.9], [-3, -8, 0.6, 1.25]];
-    for (var k = 0; k < 3; k++) {
-      var a = ease(seg(tt, 6.8 + k * 0.45, 7.3 + k * 0.45)); if (a <= 0) continue;
-      var ty = 16 + k * (th + 26), x0 = tx + (1 - a) * (th + 30);
+    var rip = seg(tt, CLICK, CLICK + 0.7);
+    if (rip > 0 && rip < 1) { cx.strokeStyle = rgba(C.gold, 1 - rip); cx.lineWidth = 2; cx.beginPath(); cx.arc(tx0, ty0, 6 + rip * 30, 0, 7); cx.stroke(); }
+    // zoom on the clicked target: the crosshair settles on its centre
+    var zin = ease(seg(tt, CLICK + 0.1, CLICK + 0.6)), zout = ease(seg(tt, 4.3, 4.8));
+    if (zin > 0 && zout < 1) {
+      var R = Math.min(H * 0.22, W * 0.17) * zin * (1 - zout), Z = 2.8, lx = tx0 + R * 1.25, ly = ty0 - R * 0.9;
+      if (ly - R < 8) ly = ty0 + R * 1.1;
+      cx.strokeStyle = 'rgba(242,239,232,0.55)'; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(tx0, ty0); cx.lineTo(lx - R * 0.7, ly + (ly > ty0 ? -R * 0.7 : R * 0.7)); cx.stroke();
+      cx.save(); cx.beginPath(); cx.arc(lx, ly, R, 0, 7); cx.clip();
+      var sw = 2 * R / (s * Z);
+      cx.drawImage(ground, (TGT.x - sw / 2) * GS, (TGT.y - sw / 2) * GS, sw * GS, sw * GS, lx - R, ly - R, 2 * R, 2 * R);
+      cx.translate(lx - TGT.x * s * Z, ly - TGT.y * s * Z); cx.scale(s * Z, s * Z); drawObjects(cx);
+      cx.restore();
+      cx.strokeStyle = '#0E0E0F'; cx.lineWidth = 4; cx.beginPath(); cx.arc(lx, ly, R + 1, 0, 7); cx.stroke();
+      cx.strokeStyle = C.gold; cx.lineWidth = 2; cx.beginPath(); cx.arc(lx, ly, R, 0, 7); cx.stroke();
+      var snap = ease(seg(tt, CLICK + 0.5, CLICK + 1.0)), jx = (1 - snap) * R * 0.18, jy = (1 - snap) * -R * 0.12;   // click was a little off; refined to the centre
+      var g2 = R * 0.12, a2 = R * 0.36, cx2 = lx + jx, cy2 = ly + jy;
+      cx.strokeStyle = '#F2EFE8'; cx.lineWidth = 1.5; cx.beginPath();
+      cx.moveTo(cx2 - a2, cy2); cx.lineTo(cx2 - g2, cy2); cx.moveTo(cx2 + g2, cy2); cx.lineTo(cx2 + a2, cy2);
+      cx.moveTo(cx2, cy2 - a2); cx.lineTo(cx2, cy2 - g2); cx.moveTo(cx2, cy2 + g2); cx.lineTo(cx2, cy2 + a2); cx.stroke();
+      if (snap >= 1) text('GCP 04  ' + (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) + ' px', lx, ly + (ly > ty0 ? R + 14 : -R - 14), 11.5, '#F2EFE8', 'center');
+    }
+    if (tt > CLICK + 0.6) brackets(tx0, ty0, 12, C.gold, 2);
+    // the same target pops up in the other photos
+    var n = PHOTOS.length, gap = 10, th = Math.min((W - 32 - gap * (n - 1)) / n, H * 0.36), y0 = H - th - 30, x00 = (W - (th * n + gap * (n - 1))) / 2, shown = 0;
+    for (var k = 0; k < n; k++) {
+      var a = ease(seg(tt, 4.6 + k * 0.32, 5.0 + k * 0.32)); if (a <= 0) continue;
+      shown++;
+      var x0 = x00 + k * (th + gap), ty = y0 + (1 - a) * 24, o = PHOTOS[k][1];
       cx.globalAlpha = a;
       cx.fillStyle = '#0E0E0F'; cx.fillRect(x0 - 3, ty - 3, th + 6, th + 22);
       cx.save(); cx.beginPath(); cx.rect(x0, ty, th, th); cx.clip();
-      var o = offs[k], cxp = x0 + th / 2 + o[0] * th / 60, cyp = ty + th / 2 + o[1] * th / 60, zz = th / 46 * o[3];
+      var cxp = x0 + th / 2 + o[0] * th / 60, cyp = ty + th / 2 + o[1] * th / 60, zz = th / 46 * o[3];
       cx.translate(cxp, cyp); cx.rotate(o[2]); cx.scale(zz, zz);
       cx.drawImage(ground, (TGT.x - 40) * GS, (TGT.y - 40) * GS, 80 * GS, 80 * GS, -40, -40, 80, 80);
       cx.translate(-TGT.x, -TGT.y); drawObjects(cx);
       cx.restore();
-      brackets(cxp, cyp, th * 0.16, C.gold, 1.6);
-      text(names[k], x0, ty + th + 9, 10.5, '#F2EFE8', 'left');
-      text(sc[k] + '% ✓', x0 + th, ty + th + 9, 10.5, C['gold-text'], 'right');
+      var pop = seg(tt, 4.9 + k * 0.32, 5.2 + k * 0.32);
+      brackets(cxp, cyp, th * mix(0.3, 0.16, ease(pop)), C.gold, 1.8);
+      text(PHOTOS[k][0], x0, ty + th + 9, 10, '#F2EFE8', 'left');
+      if (pop >= 1) text('✓', x0 + th, ty + th + 9, 11, C['gold-text'], 'right');
       cx.globalAlpha = 1;
     }
-    var found = tt < 6.1 ? 0 : 1 + [0, 1, 2].filter(function (k) { return tt > 7.3 + k * 0.45; }).length;
-    var status = tt < 0.9 ? 'Photo MAX_0142.JPG' : tt < 2.4 ? 'Scanning for GCP 04' : tt < 3.2 ? 'Checking: bucket lid' : tt < 3.5 ? 'Bucket lid: 34%, skipped' : tt < 4.8 ? 'Checking: board' : tt < 5.1 ? 'Board: 41%, skipped' : tt < 6.1 ? 'Checking the target' : found < 4 ? 'GCP 04 found, 97%' : 'GCP 04 found in 4 photos';
+    var status = tt < 1.0 ? 'Photo MAX_0142.JPG' : tt < CLICK ? 'You click the centre of GCP 04, once' : tt < CLICK + 1.0 ? 'Centre refined' : tt < 4.6 ? 'Looking in the other photos' : shown < n ? 'Found in ' + shown + ' more' : 'GCP 04 found in ' + (n + 1) + ' photos';
     setHud('<p class="rl-k">1 · Tag control</p><p class="rl-desc">Click a target in one photo. The Tagger finds it in the others and writes the control file.</p>' +
       '<p class="rl-status">' + status + '</p><dl>' +
-      line('Target', 'checkered, 2 × 2') + line('Photos with GCP 04', found + ' of 4') +
-      line('Centre in MAX_0142', tt >= 6.5 ? (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) : '…') +
-      line('Writes', tt > 8.7 ? 'gcp_list.txt · ReCap XML' : '…', tt > 8.7 ? 'hi' : '') + '</dl>' +
-      '<p class="rl-note">Made-up photo and scores. You accept or reject each find; nothing is used until you do.</p>');
+      line('Target', 'checkered, 2 × 2') + line('Photos with GCP 04', (tt < CLICK + 0.6 ? 0 : 1 + shown) + ' of ' + (n + 1)) +
+      line('Centre in MAX_0142', tt >= CLICK + 1.0 ? (TGT.x * PHOTO_W / GW).toFixed(1) + ', ' + (TGT.y * PHOTO_H / GH).toFixed(1) : '…') +
+      line('Writes', tt > 7.4 ? 'gcp_list.txt · ReCap XML' : '…', tt > 7.4 ? 'hi' : '') + '</dl>' +
+      '<p class="rl-note">Made-up photo. You look over each find and accept it or not; nothing goes in the file until you do.</p>');
   }
 
   /* ---------- the synthetic site for scenes 2 and 3 ---------- */
@@ -293,45 +286,64 @@
     return out;
   }
   function scene3(tt) {
-    var k = Math.min(W / (HX * 3.0), H / (HY * 3.4)), cy = H * 0.54, pitch = 1.05, yaw = 0;
-    var r = ease(seg(tt, 2.2, 4.6)), ang = -mix(CONV0, CONV1, r) * Math.PI / 180, toLbl = seg(tt, 4.2, 4.8);   // screen up = true north
-    var cE = r < 0.5 ? FROM.e : TO.e, cN = r < 0.5 ? FROM.n : TO.n;
-    // grid under the cloud
-    cx.save(); cx.lineWidth = 1;
-    var STEP = 20, ext = 110, c = Math.cos(ang), s = Math.sin(ang);
-    function gp(u, v) { return project(u * c - v * s, u * s + v * c, zmin - 0.4, yaw, pitch, k, cy); }
-    var offE = ((cE % STEP) + STEP) % STEP, offN = ((cN % STEP) + STEP) % STEP;
-    for (var u = -ext - offE; u <= ext; u += STEP) {
-      var a1 = gp(u, -ext * 0.62), a2 = gp(u, ext * 0.62); cx.strokeStyle = rgba(C.gold, 0.32); cx.beginPath(); cx.moveTo(a1[0], a1[1]); cx.lineTo(a2[0], a2[1]); cx.stroke();
-      if (Math.abs(u) < ext * 0.9) { var lb = gp(u, -ext * 0.5); text(fmt(Math.round(cE + u), 0), lb[0], lb[1] + 12, 10, rgba(C['gold-text'], 0.9), 'center'); }
+    var k = Math.min(W / (HX * 3.1), H / (HY * 3.4)), cy = H * 0.55;
+    var yaw = -0.32 * Math.sin(tt * 0.35) - 0.1, pitch = 0.98 - 0.12 * Math.sin(tt * 0.28);        // slow orbit
+    var sweep = ease(seg(tt, 1.8, 5.2)), SX = mix(-HX - 12, HX + 12, sweep);                        // gold sweep, west to east
+    var ext = 112, STEP = 20;
+    function grid(convDeg, cE, cN, col, alpha, clipEast) {
+      var a = -convDeg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+      function gp(u, v) { var x = u * c - v * s, y = u * s + v * c; return project(x, y, zmin - 0.4, yaw, pitch, k, cy); }
+      cx.save();
+      if (clipEast !== undefined) {                       // only west of the sweep
+        var p1 = project(-ext * 1.4, -ext, zmin - 0.4, yaw, pitch, k, cy), p2 = project(clipEast, -ext, zmin - 0.4, yaw, pitch, k, cy),
+            p3 = project(clipEast, ext, zmin - 0.4, yaw, pitch, k, cy), p4 = project(-ext * 1.4, ext, zmin - 0.4, yaw, pitch, k, cy);
+        cx.beginPath(); cx.moveTo(p1[0], p1[1]); cx.lineTo(p2[0], p2[1]); cx.lineTo(p3[0], p3[1]); cx.lineTo(p4[0], p4[1]); cx.closePath(); cx.clip();
+      }
+      cx.lineWidth = 1; cx.strokeStyle = rgba(col, alpha);
+      var la = Math.min(1, alpha * 2.4) * (clipEast === undefined ? 1 - seg(sweep, 0, 0.25) : 1);   // old labels make way for the new ones
+      var oE = ((cE % STEP) + STEP) % STEP, oN = ((cN % STEP) + STEP) % STEP, u, v, A, B;
+      for (u = -ext - oE; u <= ext; u += STEP) { A = gp(u, -ext * 0.62); B = gp(u, ext * 0.62); cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke();
+        if (Math.abs(u) < ext * 0.85) { var L = gp(u, -ext * 0.55); if (la > 0.02) text(fmt(Math.round(cE + u), 0), L[0], L[1] + 12, 10, rgba(col, la), 'center'); } }
+      for (v = -ext * 0.62 - oN; v <= ext * 0.62; v += STEP) { A = gp(-ext, v); B = gp(ext, v); cx.beginPath(); cx.moveTo(A[0], A[1]); cx.lineTo(B[0], B[1]); cx.stroke();
+        if (Math.abs(v) < ext * 0.5) { var M = gp(-ext * 0.9, v); if (la > 0.02) text(fmt(Math.round(cN + v), 0), M[0], M[1] - 8, 10, rgba(col, la), 'left'); } }
+      cx.restore();
     }
-    for (var v = -ext * 0.62 - offN; v <= ext * 0.62; v += STEP) {
-      var b1 = gp(-ext, v), b2 = gp(ext, v); cx.strokeStyle = rgba(C.gold, 0.32); cx.beginPath(); cx.moveTo(b1[0], b1[1]); cx.lineTo(b2[0], b2[1]); cx.stroke();
-      if (Math.abs(v) < ext * 0.5) { var lv = gp(-ext * 0.86, v); text(fmt(Math.round(cN + v), 0), lv[0], lv[1] - 8, 10, rgba(C['gold-text'], 0.9), 'left'); }
+    // old grid fades as the new one is drawn in behind the sweep
+    grid(CONV0, FROM.e, FROM.n, C.muted, 0.38 * (1 - 0.75 * sweep));
+    if (sweep > 0) grid(CONV1, TO.e, TO.n, C.gold, 0.42, SX);
+    // the cloud: points turn gold as the sweep passes (their positions never change)
+    for (var q = 0; q < PTS.length; q++) {
+      var p = PTS[q], sp = project(p[0], p[1], p[2], yaw, pitch, k, cy), h = (p[2] - zmin) / (zmax - zmin), done = p[0] < SX;
+      var near = Math.max(0, 1 - Math.abs(p[0] - SX) / 6);
+      cx.fillStyle = done ? rgba(near > 0 ? '#FFFFFF' : C['gold-text'], 0.55 + 0.45 * h) : rgba(h > 0.5 ? C.ink : C.muted, 0.5 + 0.45 * h);
+      var r = (1.7 + near * 1.6) * sp[2]; cx.fillRect(sp[0] - r / 2, sp[1] - r / 2, r, r);
     }
-    cx.restore();
-    drawCloud(yaw, pitch, k, cy, 1);
-    // the example point
-    var ep = project(0, 0, height(0, 0), yaw, pitch, k, cy);
-    cx.strokeStyle = C.ink; cx.lineWidth = 2; cx.beginPath(); cx.arc(ep[0], ep[1], 6, 0, 7); cx.stroke();
+    if (sweep > 0 && sweep < 1) {                          // the sweep itself
+      var s1 = project(SX, -HY - 6, zmax + 0.5, yaw, pitch, k, cy), s2 = project(SX, HY + 6, zmax + 0.5, yaw, pitch, k, cy);
+      cx.strokeStyle = rgba(C.gold, 0.9); cx.lineWidth = 2; cx.beginPath(); cx.moveTo(s1[0], s1[1]); cx.lineTo(s2[0], s2[1]); cx.stroke();
+    }
+    // the example point, with a pulse when it converts
+    var ep = project(0, 0, height(0, 0), yaw, pitch, k, cy), hit = seg(tt, 3.5, 4.6);
+    if (hit > 0 && hit < 1) { cx.strokeStyle = rgba(C.gold, 1 - hit); cx.lineWidth = 2; cx.beginPath(); cx.arc(ep[0], ep[1], 8 + hit * 46, 0, 7); cx.stroke(); }
+    if (tt > 6.4) { var pr = (tt - 6.4) % 1.3 / 1.3; cx.strokeStyle = rgba(C.gold, 0.6 * (1 - pr)); cx.lineWidth = 1.5; cx.beginPath(); cx.arc(ep[0], ep[1], 8 + pr * 26, 0, 7); cx.stroke(); }
+    cx.strokeStyle = sweep > 0.5 ? C.gold : C.ink; cx.lineWidth = 2; cx.beginPath(); cx.arc(ep[0], ep[1], 6, 0, 7); cx.stroke();
     cx.beginPath(); cx.moveTo(ep[0] - 11, ep[1]); cx.lineTo(ep[0] + 11, ep[1]); cx.moveTo(ep[0], ep[1] - 11); cx.lineTo(ep[0], ep[1] + 11); cx.stroke();
-    // north arrows: true north stays, grid north turns
-    var ax = W - 70, ay = 58;
-    function arrow(a, col, lbl) {
-      var dx = Math.sin(a) * 30, dy = -Math.cos(a) * 30; cx.strokeStyle = col; cx.fillStyle = col; cx.lineWidth = 2;
-      cx.beginPath(); cx.moveTo(ax, ay + 14); cx.lineTo(ax + dx, ay + dy); cx.stroke();
-      cx.beginPath(); cx.arc(ax + dx, ay + dy, 3, 0, 7); cx.fill(); text(lbl, ax + dx + (a === 0 ? -10 : 10), ay + dy - 10, 10, col, a === 0 ? 'right' : 'left');
-    }
-    arrow(0, C.muted, 'true N'); arrow(ang * 6, C.gold, 'grid N');
-    text('arrow angle × 6 so it shows; the grid lines turn the true 2.41°', 14, H - 14, 10.5, C.muted, 'left');
-    var kE = seg(tt, 4.4, 5.6), kN = seg(tt, 4.8, 6.0);
-    setHud('<p class="rl-k">3 · Convert</p><p class="rl-desc">Move the cloud into your coordinate system. Checkshot says which transform it used and what it changed.</p><p class="rl-status">' + (tt < 2.2 ? 'Example point, Edmonton' : tt < 4.6 ? 'Converting…' : 'Converted. Same ground, new grid') + '</p><dl>' +
+    text(tt < 3.9 ? 'E ' + fmt(FROM.e, 3) + '  N ' + fmt(FROM.n, 3) : 'E ' + scramble(TO.e, 3, seg(tt, 3.9, 5.0), 3) + '  N ' + scramble(TO.n, 3, seg(tt, 4.2, 5.4), 9),
+      ep[0] + 16, ep[1] - 16, 11, tt < 3.9 ? C.ink : C['gold-text'], 'left');
+    // grid labels in the corner
+    cx.fillStyle = rgba(C.bg, 0.8); cx.fillRect(12, 12, 280, 46);
+    text(FROM.code + '  ' + FROM.name, 22, 26, 10.5, sweep < 1 ? C.ink : C.muted, 'left');
+    text(TO.code + '  ' + TO.name, 22, 44, 10.5, sweep > 0 ? C['gold-text'] : C.muted, 'left');
+    text('grid lines turn the true 2.41° at this point; heights × ' + VEX, 14, H - 14, 10.5, C.muted, 'left');
+    var kE = seg(tt, 3.9, 5.0), kN = seg(tt, 4.2, 5.4);
+    setHud('<p class="rl-k">3 · Convert</p><p class="rl-desc">Move the cloud into your coordinate system. Checkshot says which transform it used and what it changed.</p>' +
+      '<p class="rl-status">' + (tt < 1.8 ? 'Example point, Edmonton' : tt < 5.2 ? 'Converting…' : 'Converted. Same ground, new grid') + '</p><dl>' +
       line('From', FROM.code) + line('E', fmt(FROM.e, 3)) + line('N', fmt(FROM.n, 3)) +
-      line('To', toLbl > 0 ? TO.code : '…', toLbl > 0 ? 'hi' : '') +
-      line('E', tt > 4.4 ? scramble(TO.e, 3, kE, 1) : '…') + line('N', tt > 4.8 ? scramble(TO.n, 3, kN, 7) : '…') +
-      line('Grid turn here', tt > 6.2 ? ROT.toFixed(2) + '°' : '…') + line('Grid scale change', tt > 6.5 ? PPM + ' ppm (2.1 mm / 100 m)' : '…') +
-      line('Round trip', tt > 6.8 ? '0.000 mm' : '…') + '</dl>' +
-      '<p class="rl-note">Real numbers for one example point, from Checkshot\'s own coordinate data. The cloud on the left is made up.</p>');
+      line('To', sweep > 0 ? TO.code : '…', sweep > 0 ? 'hi' : '') +
+      line('E', tt > 3.9 ? scramble(TO.e, 3, kE, 1) : '…') + line('N', tt > 4.2 ? scramble(TO.n, 3, kN, 7) : '…') +
+      line('Grid turn here', tt > 5.6 ? ROT.toFixed(2) + '°' : '…') + line('Grid scale change', tt > 6.0 ? PPM + ' ppm (2.1 mm / 100 m)' : '…') +
+      line('Round trip', tt > 6.4 ? '0.000 mm' : '…') + '</dl>' +
+      '<p class="rl-note">Real numbers for one example point, from Checkshot\'s own coordinate data. The cloud is made up.</p>');
   }
 
   /* ---------- loop ---------- */
@@ -351,21 +363,20 @@
       b.style.setProperty('--p', q === scene ? (reduce.matches ? 1 : clamp(t / DUR[q], 0, 1)) : 0);
     });
   }
-  function running() { return visible && !userPaused && !reduce.matches && !document.hidden; }
+  function running() { return visible && !reduce.matches && !document.hidden && !(manual && t >= DUR[scene]); }
   function frame(now) {
     raf = 0; if (!running()) return;
     var dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
-    if (t > DUR[scene]) { scene = (scene + 1) % 3; t = 0; cv.setAttribute('aria-label', LABEL[scene]); }
+    if (t > DUR[scene]) {
+      if (manual) { t = DUR[scene]; draw(); return; }        // a tab was picked: play that slide once and hold
+      scene = (scene + 1) % 3; t = 0; cv.setAttribute('aria-label', LABEL[scene]);
+    }
     draw(); raf = requestAnimationFrame(frame);
   }
   function kick() { if (!raf && running()) { last = performance.now(); raf = requestAnimationFrame(frame); } }
-  function go(q) { scene = q; t = reduce.matches ? DUR[q] : 0; cv.setAttribute('aria-label', LABEL[q]); draw(); kick(); }
+  function go(q) { manual = true; scene = q; t = reduce.matches ? DUR[q] : 0; cv.setAttribute('aria-label', LABEL[q]); draw(); kick(); }
 
   tabs.forEach(function (b, q) { b.addEventListener('click', function () { go(q); }); });
-  pauseBtn.addEventListener('click', function () {
-    userPaused = !userPaused; pauseBtn.setAttribute('aria-pressed', userPaused ? 'true' : 'false');
-    pauseBtn.textContent = userPaused ? 'Play' : 'Pause'; kick();
-  });
   if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; kick(); }, { threshold: 0.15 }).observe(cv);
   else visible = true;
   document.addEventListener('visibilitychange', kick);
@@ -373,8 +384,8 @@
   new MutationObserver(function () { readColors(); draw(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   reduce.addEventListener && reduce.addEventListener('change', function () { go(scene); });
   readColors();
-  if (reduce.matches) { pauseBtn.hidden = true; t = DUR[0]; }
+  if (reduce.matches) t = DUR[0];
   cv.setAttribute('aria-label', LABEL[0]);
   resize(); kick();
-  window.__reel = { go: go, at: function (q, tt) { scene = q; t = tt; draw(); } };   // for screenshots in tools/check
+  window.__reel = { go: go, at: function (q, tt) { manual = true; scene = q; t = tt; draw(); } };   // for screenshots in tools/check
 })();
