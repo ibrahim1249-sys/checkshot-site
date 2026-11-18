@@ -65,3 +65,6 @@
   .hero-over { position: static; width: auto; background: none; border: 0; border-bottom: 1px solid var(--line); padding: 22px var(--gutter) 18px; }
   .survey:has(.hero-over) .sv-stage { height: clamp(300px, 46vh, 460px); }
 }
+.reel.rl-static .rl-stage, .reel.rl-static .rl-tabs { display: none; }
+.reel.rl-static .rl-body { grid-template-columns: 1fr; }
+.reel.rl-static .rl-hud { border-left: 0; }

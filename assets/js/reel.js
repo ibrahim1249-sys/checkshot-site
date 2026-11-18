@@ -7,8 +7,9 @@
 (function () {
   'use strict';
   var root = document.getElementById('reel');
-  if (!root || !root.querySelector('canvas').getContext) return;
-  var cv = root.querySelector('canvas'), cx = cv.getContext('2d');
+  if (!root) return;
+  var cv = root.querySelector('canvas'), cx = cv.getContext && cv.getContext('2d');
+  if (!cx) { root.classList.add('rl-static'); return; }   // no canvas: the text written into the page stays
   var tabs = [].slice.call(root.querySelectorAll('.rl-tab'));
   var hud = root.querySelector('.rl-hud-body');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
