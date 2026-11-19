@@ -9,6 +9,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 SITE = 'https://checkshot.ca'
 MAIL = 'support@checkshot.ca'
 RELEASES = 'https://github.com/ibrahim1249-sys/checkshot-site/releases/latest'
+DIRECT = RELEASES + '/download/Checkshot-setup.exe'   # every release carries this fixed-name copy of the installer
 LEGAL_SRC = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / 'legal' / 'src'
 
 MARK = ('<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="23" fill="none" stroke="var(--logo-ring)" stroke-width="3"/>'
@@ -296,16 +297,15 @@ DOWNLOAD = f'''<div class="page-head"><div class="wrap">
 <div class="page-body"><div class="wrap dl-grid">
   <div class="dl-box">
     <h2>Windows 10 and 11</h2>
-    <a class="btn" href="{RELEASES}">Get the installer from the release page</a>
-    <p><strong>The first public build is being posted.</strong> If the release page is empty, check back later today.</p>
-    <p>On the release page, take the file named <code>Checkshot_x.y.z_x64-setup.exe</code>. No admin rights needed: it installs for your user account only.</p>
-    <p>Linux: the <code>.deb</code> and <code>.AppImage</code> are on the same page.</p>
+    <a class="btn" href="{DIRECT}" download>Download for Windows</a>
+    <p>One file, <code>Checkshot-setup.exe</code>. No admin rights needed: it installs for your user account only. <a href="{RELEASES}">Version notes and earlier builds</a>.</p>
+    <p>Linux (<code>.deb</code> and <code>.AppImage</code>): write to <a href="mailto:{MAIL}">{MAIL}</a> and we'll send a link.</p>
     <p>By installing you accept the <a href="../legal/eula.html">licence agreement</a>.</p>
   </div>
   <div class="prose">
     <h2 style="margin-top:0">Installing on Windows</h2>
     <ol class="steps">
-      <li>Download the <code>-setup.exe</code> file from the release page.</li>
+      <li>Click <strong>Download for Windows</strong>. The file is <code>Checkshot-setup.exe</code>.</li>
       <li>Run it. Windows may show a SmartScreen notice for a new release. Choose <strong>More info</strong> to see who published the file before you run it.</li>
       <li>Open Checkshot from the Start menu. It opens on the GCP Tagger. Nothing else to set up.</li>
     </ol>
@@ -314,7 +314,7 @@ DOWNLOAD = f'''<div class="page-head"><div class="wrap">
     <h2>After the beta</h2>
     <p>From April 1, 2027 the app needs a licence key and will not save files without one. The price has not been set. It will be posted on this site before the beta ends.</p>
     <h2>Something not working?</h2>
-    <p>Write to <a href="mailto:{MAIL}">{MAIL}</a>. Say which version you have (it is in the installer's file name) and what you were doing. Do not send client data unless you are allowed to.</p>
+    <p>Write to <a href="mailto:{MAIL}">{MAIL}</a>. Say which version you have (Windows Settings, Apps, Installed apps lists it under Checkshot) and what you were doing. Do not send client data unless you are allowed to.</p>
   </div>
 </div></div>
 '''
