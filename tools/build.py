@@ -212,7 +212,7 @@ HOME = f'''<section class="hero" aria-labelledby="h-hero">
     <article class="tool">
       <div class="tool-shot"><img class="dark" src="assets/shots/converter-dark.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM cloud to Alberta 3TM: the transform used, its largest difference from the exact maths, and a plot of the cloud."><img class="light" src="assets/shots/converter-light.webp" width="2560" height="1600" loading="lazy" decoding="async" alt="The Converter after converting a made-up UTM cloud to Alberta 3TM: the transform used, its largest difference from the exact maths, and a plot of the cloud."></div>
       <h3>Converter</h3>
-      <ul><li>5,860 EPSG projected systems, including Alberta 3TM and UTM.</li><li>NAD27 through Natural Resources Canada's NTv2 grid, inside Canada.</li><li>US survey feet and international feet.</li><li>Out: a thinned point file for Civil 3D, or a LAS. Says when a step changes geometry, and by how much.</li></ul>
+      <ul><li>5,300+ EPSG projected systems, including Alberta 3TM and UTM.</li><li>NAD27 through Natural Resources Canada's NTv2 grid, inside Canada.</li><li>US survey feet and international feet.</li><li>Out: a thinned point file for Civil 3D, or a LAS. Says when a step changes geometry, and by how much.</li></ul>
     </article>
   </div>
 </section>
@@ -421,7 +421,7 @@ def legal(name, desc):
 
 urls = [
     page('index.html', 'Checkshot: tag drone survey ground control for WebODM and ReCap',
-         'Windows app for drone surveys. Tag ground control in your photos for OpenDroneMap, WebODM or ReCap, convert point clouds between 5,860 coordinate systems, and check the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.',
+         'Windows app for drone surveys. Tag ground control in your photos for OpenDroneMap, WebODM or ReCap, convert point clouds between 5,300+ coordinate systems, and check the cloud against your stick shots. Runs offline. Free beta until March 31, 2027.',
          HOME, extra_head=JSONLD + '<link rel="stylesheet" href="assets/css/reel.css">\n', scripts='<script src="assets/js/hero.js"></script>\n<script src="assets/js/reel.js"></script>\n'),
     page('download/index.html', 'Download the Checkshot beta for Windows',
          'Get the Checkshot beta installer for Windows 10 and 11. No admin rights needed. Free until March 31, 2027. Linux builds on the same release page.',
